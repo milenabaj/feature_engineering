@@ -1,0 +1,20 @@
+{
+
+
+    "prod": {"database": "postgres",
+             "user":"mibaj",
+             "password":"mibajLira123",
+             "host":"liradb.compute.dtu.dk", 
+             "port":"5435"},
+   
+    "dev" : {"database":"postgres", 
+             "user":"mibaj",
+             "password":"Vm9jzgBH", 
+             "host":"liradbdev.compute.dtu.dk", 
+             "port":"5432"},
+            
+    "osrm": {"host":"http://liradbdev.compute.dtu.dk:5000"}
+
+
+}
+                
