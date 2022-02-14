@@ -42,7 +42,6 @@ parser.add_argument('--json_route', default= "json/routes.json", help='Json file
 parser.add_argument('--json_sel_feats', default= "json/selected_features.json", help='Json file with selected features information. Will be written if any of the mode option is set or only laoded if predict_mode is set.')
 parser.add_argument('--in_dir_base', default= "data", help='Input directory base.')
 parser.add_argument('--recreate', action="store_true", help = 'Recreate files, even if present. If False and the files are present, the data will be loaded from them.')
-parser.add_argument('--load_fe_results', action='store_true', help='Only load files with feature extraction results.')
 
 parser.add_argument('--mode',  default = 'trainvalidkfold_test', help = 'If you want to use the the loaded data for feature extraction and selection, use Choose between: trainvalid and trainvalidkfold. If you also want to prepare a part of it as a test dataset, use: trainvalid_test or trainvalidkfold_test. ')    
 parser.add_argument('--dev_mode', action="store_true", help = 'Run on a subset of lines only. Use for debugging purposes.')
@@ -67,7 +66,6 @@ json_route = args.json_route
 json_feats_file = args.json_sel_feats
 in_dir_base = args.in_dir_base
 recreate = args.recreate
-load_fe_results = args.load_fe_results
 
 mode = args.mode
 predict_mode = args.predict_mode
@@ -80,7 +78,6 @@ routes = ['M3_VH','M3_HH']
 p79 = True
 aran = True
 recreate = True
-args.trips = [7792]      
 load_add_sensors = True
 #dev_mode = True
 #=================================#  
@@ -189,91 +186,75 @@ time.sleep(3)
 
 # =====================================================================   #
 # Process aligned files
-# =====================================================================   # 
-# Only load fe results and exit
-if load_fe_results:
-    
-    # Get filenames
-    fe_filenames = []
-    for trip in trips: 
-            fe_filenames.extend(glob.glob('{0}/aligned_extracted_features_GM*.pickle'.format(out_dir)))
-       
-    # Load
-    GM_data = {}
-    for fe_filename in fe_filenames:
-        print('Loading: ',fe_filename)
-        key = fe_filename.split('/')[-1]
-        GM_data[key]= pd.read_pickle(fe_filename)
-    
+# =====================================================================   #     
     
 # Process each trip
-else:
-    dfs = []
-    for in_dir in in_dirs:
-        for trip in trips:
-            #print('Starting extraction for trip: ',trip)
-                
-            # Find filenames
-            filenames = glob.glob('{0}/*{1}*.pickle'.format(in_dir, trip))
-      
-            # For each pass
-            for filename in filenames:
-                print('Loading :',filename)
-                df = pd.read_pickle(filename)
-                if dev_mode:
-                    df = df.head(dev_nrows)
-                 
-                dfs.append(df)
-                
-    # Data            
-    df = pd.concat(dfs)
-    
-    if predict_mode:
-        trainvalid_df = None
-        test_df = df
-        
-    elif 'test'in mode:
-        
-        # Trainvalid
-        trainvalid_n = int(0.8*df.shape[0])
-        trainvalid_df = df[0:trainvalid_n]
-        trainvalid_df.reset_index(inplace=True, drop=True)
-        
-        # Test df
-        test_df = df[trainvalid_n:]
-        test_df.reset_index(inplace=True, drop=True)
-    else:
-        trainvalid_df = df
-        test_df = None
+dfs = []
+for in_dir in in_dirs:
+    for trip in trips:
+        #print('Starting extraction for trip: ',trip)
+            
+        # Find filenames
+        filenames = glob.glob('{0}/*{1}*.pickle'.format(in_dir, trip))
+  
+        # For each pass
+        for filename in filenames:
+            print('Loading :',filename)
+            df = pd.read_pickle(filename)
+            if dev_mode:
+                df = df.head(dev_nrows)
+             
+            dfs.append(df)
+            
+# Data            
+df = pd.concat(dfs)
 
-                                        
-    # Resample -  FE - FS on trainvalid
-    if trainvalid_df:
-        to_lengths_dict = {}
-        for feat in input_feats:
-            a =  trainvalid_df[feat].apply(lambda seq: seq.shape[0])
-            l = int(a.quantile(0.90))
-            to_lengths_dict[feat] = l
-            #print(to_lengths_dict)
-            #to_lengths_dict = {'GM.acc.xyz.z': 369, 'GM.obd.spd_veh.value':309} # this was used for motorway
-        trainvalid_df, feats_resampled = resample_df(trainvalid_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
-        
-        # Do feature extraction 
-        df_chunk, fe_filename = feature_extraction(trainvalid_df, keep_cols = trainvalid_df.columns, feats = input_feats, out_dir = out_dir, 
-                                                   file_suff = route_string, 
-                                                   write_out_file = True, recreate = recreate, sel_features = sel_features, 
-                                                   predict_mode = predict_mode)
+if predict_mode:
+    trainvalid_df = None
+    test_df = df
     
-    # Resample - FS on test        
-    if test_df:
-        to_lengths_dict = {}
-        for feat in input_feats:
-            a =  trainvalid_df[feat].apply(lambda seq: seq.shape[0])
-            l = int(a.quantile(0.90))
-            to_lengths_dict[feat] = l
-            #print(to_lengths_dict)
-            #to_lengths_dict = {'GM.acc.xyz.z': 369, 'GM.obd.spd_veh.value':309} # this was used for motorway
-        test_df, _ = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
+elif 'test'in mode:
+    
+    # Trainvalid
+    trainvalid_n = int(0.8*df.shape[0])
+    trainvalid_df = df[0:trainvalid_n]
+    trainvalid_df.reset_index(inplace=True, drop=True)
+    
+    # Test df
+    test_df = df[trainvalid_n:]
+    test_df.reset_index(inplace=True, drop=True)
+else:
+    trainvalid_df = df
+    test_df = None
+
+                                    
+# Resample -  FE - FS on trainvalid
+if trainvalid_df is not None:
+    to_lengths_dict = {}
+    for feat in input_feats:
+        a =  trainvalid_df[feat].apply(lambda seq: seq.shape[0])
+        l = int(a.quantile(0.90))
+        to_lengths_dict[feat] = l
+        #print(to_lengths_dict)
+        #to_lengths_dict = {'GM.acc.xyz.z': 369, 'GM.obd.spd_veh.value':309} # this was used for motorway
+    trainvalid_df, feats_resampled = resample_df(trainvalid_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
+    
+    # Do feature extraction 
+    df_chunk, fe_filename = feature_extraction(trainvalid_df, keep_cols = trainvalid_df.columns, feats = input_feats, out_dir = out_dir, 
+                                               file_suff = route_string, 
+                                               write_out_file = True, recreate = recreate, sel_features = sel_features, 
+                                               predict_mode = predict_mode)
+
+# Resample - FS on test        
+if test_df is not None:
+    to_lengths_dict = {}
+    for feat in input_feats:
+        a =  trainvalid_df[feat].apply(lambda seq: seq.shape[0])
+        l = int(a.quantile(0.90))
+        to_lengths_dict[feat] = l
+        #print(to_lengths_dict)
+        #to_lengths_dict = {'GM.acc.xyz.z': 369, 'GM.obd.spd_veh.value':309} # this was used for motorway
+    test_df, _ = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
        
 
 
