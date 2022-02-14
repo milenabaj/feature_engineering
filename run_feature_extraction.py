@@ -82,7 +82,7 @@ aran = True
 recreate = True
 args.trips = [7792]      
 load_add_sensors = True
-dev_mode = True
+#dev_mode = True
 #=================================#  
 # Check mode
 if mode and mode not in ['trainvalid','trainvalidkfold','trainvalid_test','trainvalidkfold_test']:
@@ -225,9 +225,8 @@ else:
                  
                 dfs.append(df)
                 
-                
+    # Data            
     df = pd.concat(dfs)
-    
     
     if predict_mode:
         trainvalid_df = None
@@ -247,31 +246,37 @@ else:
         trainvalid_df = df
         test_df = None
 
-    df_len = trainvalid_df.shape[0]
-    print(trainvalid_df.memory_usage())
-    to_lengths_dict = {}
+                                        
+    # Resample -  FE - FS on trainvalid
+    if trainvalid_df:
+        to_lengths_dict = {}
+        for feat in input_feats:
+            a =  trainvalid_df[feat].apply(lambda seq: seq.shape[0])
+            l = int(a.quantile(0.90))
+            to_lengths_dict[feat] = l
+            #print(to_lengths_dict)
+            #to_lengths_dict = {'GM.acc.xyz.z': 369, 'GM.obd.spd_veh.value':309} # this was used for motorway
+        trainvalid_df, feats_resampled = resample_df(trainvalid_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
+        
+        # Do feature extraction 
+        df_chunk, fe_filename = feature_extraction(trainvalid_df, keep_cols = trainvalid_df.columns, feats = input_feats, out_dir = out_dir, 
+                                                   file_suff = route_string, 
+                                                   write_out_file = True, recreate = recreate, sel_features = sel_features, 
+                                                   predict_mode = predict_mode)
     
-                                             
-    # Resample length
-    for feat in input_feats:
-        a =  trainvalid_df[feat].apply(lambda seq: seq.shape[0])
-        l = int(a.quantile(0.90))
-        to_lengths_dict[feat] = l
-        #print(to_lengths_dict)
-        #to_lengths_dict = {'GM.acc.xyz.z': 369, 'GM.obd.spd_veh.value':309} # this was used for motorway
+    # Resample - FS on test        
+    if test_df:
+        to_lengths_dict = {}
+        for feat in input_feats:
+            a =  trainvalid_df[feat].apply(lambda seq: seq.shape[0])
+            l = int(a.quantile(0.90))
+            to_lengths_dict[feat] = l
+            #print(to_lengths_dict)
+            #to_lengths_dict = {'GM.acc.xyz.z': 369, 'GM.obd.spd_veh.value':309} # this was used for motorway
+        test_df, _ = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
        
- 
-    # Resample 
-    trainvalid_df, feats_resampled = resample_df(trainvalid_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
-    test_df, _ = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
-       
-    sys.exit(0)
-    # Do feature extraction 
-    df_chunk, fe_filename = feature_extraction(trainvalid_df, keep_cols = trainvalid_df.columns, feats = input_feats, out_dir = out_dir, 
-                                               file_suff = route_string, 
-                                               write_out_file = True, recreate = recreate, sel_features = sel_features, 
-                                               predict_mode = predict_mode)
-    
+
+
 
 sys.exit(0)       
             
