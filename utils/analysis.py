@@ -182,7 +182,7 @@ def feature_extraction(df, out_dir, keep_cols = [], feats = ['GM.obd.spd_veh.val
                        file_suff='', recreate=False, write_out_file = True, feats_list_to_extract = None,  predict_mode = False, sel_features = None):
 
     # Output filename
-    out_filename = '{0}/{1}'.format(out_dir, file_suff)
+    out_filename = '{0}/{1}.pickle'.format(out_dir, file_suff)
 
     # Load if it exists
     if not recreate and os.path.exists(out_filename):
