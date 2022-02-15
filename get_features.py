@@ -115,7 +115,7 @@ if use_add_sensors:
    input_feats = input_feats + add_sensors
    suff = suff + '_add_sensors'
 else:
-   suff = suff + '_ßaccspeed'
+   suff = suff + '_accspeed'
        
 if predict_mode:
     input_feats = [var.split('GM.')[1] for var in input_feats] 
@@ -183,6 +183,10 @@ if not use_add_sensors:
     out_dir = out_dir.replace('_add_sensors','')
 if not os.path.exists(out_dir):
     os.makedirs(out_dir)
+    
+out_dir_plots = '{0}/plots'
+if not os.path.exists(out_dir_plots):
+    os.makedirs(out_dir_plots)
 
 print('p79 data? ', p79)
 print('Aran data? ', aran)
@@ -235,8 +239,11 @@ print('Loaded files: ',filenames)
          
 # Data            
 df = pd.concat(dfs)
-df.reset_index(inplace=True, drop = True)
 
+# Prepare data
+non_GM_cols = [col for col in  df.columns if not col.startswith('GM.')]
+clean_nans(df, exclude_cols=non_GM_cols)
+df.reset_index(inplace=True, drop = True)
 
 # Predict mode
 if predict_mode:
@@ -268,6 +275,13 @@ if trainvalid_df is not None:
         to_lengths_dict[feat] = l
         #print(to_lengths_dict)
         #to_lengths_dict = {'GM.acc.xyz.z': 369, 'GM.obd.spd_veh.value':309} # this was used for motorway
+        
+    #var = 'GM.obd.spd_veh.value'
+    for var in ['IRI_mean', 'GM.obd.spd_veh.value']:
+        x = trainvalid_df[var]
+        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots, suff = '_trainvalid')
+    
+    # Resample
     trainvalid_df, feats_resampled = resample_df(trainvalid_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
     
     # Do feature extraction 
@@ -276,9 +290,19 @@ if trainvalid_df is not None:
                                                file_suff = routes_string + suff +'_trainvalid', 
                                                write_out_file = True, recreate = recreate, sel_features = sel_features, 
                                                predict_mode = predict_mode)
+
+  
+    # Remove some columns if needed
+    to_rem = []
+    avail_cols = list(trainvalid_df.columns)
+    for col in avail_cols:
+        if any(x in col for x in ['ECDF Percentile Count', 'ECDF_']):
+             to_rem.append(col)  
+
+    trainvalid_df.drop(to_rem,axis=1,inplace=True)
     
     # Do FS
-    
+
     
 # Resample - FS on test        
 if test_df is not None:
