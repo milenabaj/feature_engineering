@@ -66,7 +66,7 @@ step = args.step
 
 json_route = args.json_route
 json_feats_file = args.json_sel_feats
-in_dir_base = args.in_dir_base
+in_dir_base = args.in_dir
 recreate = args.recreate
 
 mode = args.mode
