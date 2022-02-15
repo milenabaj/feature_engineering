@@ -288,6 +288,8 @@ if trainvalid_df is not None:
         x = trainvalid_df[var]
         get_normalized_hist(x, var_name = var, out_dir = out_dir_plots, suff = '_trainvalid')
     
+    # Write some info
+    
     # Resample
     trainvalid_df, feats_resampled = resample_df(trainvalid_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
     
@@ -298,6 +300,7 @@ if trainvalid_df is not None:
                                                write_out_file = True, recreate = recreate, sel_features = sel_features, 
                                                predict_mode = predict_mode)
 
+    # Write info about trainvalid
   
     # Remove some columns if needed
     to_rem = []

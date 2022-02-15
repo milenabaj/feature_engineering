@@ -765,12 +765,12 @@ def save_hist(aligned, var, route = '', label = '', plot_suff = '', out_dir_plot
 
 
 def get_normalized_hist(x, var_name = '', out_dir='.', suff = ''):
-    try:
-        #x = df[var].iloc[0:-1].to_numpy()
-        x = x.to_numpy()
+    
+    x = x.to_numpy()
+            
+    x0 = x[0]
+    if 'numpy' in str(type(x0):
         x = np.concatenate(x)
-    except:
-        pass
     
     fig, ax = plt.subplots()
     xmin = x.min()
