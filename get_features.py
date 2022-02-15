@@ -184,7 +184,7 @@ if not use_add_sensors:
 if not os.path.exists(out_dir):
     os.makedirs(out_dir)
     
-out_dir_plots = '{0}/plots'
+out_dir_plots = '{0}/plots'.format(out_dir)
 if not os.path.exists(out_dir_plots):
     os.makedirs(out_dir_plots)
 
