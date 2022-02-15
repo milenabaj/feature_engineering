@@ -195,12 +195,12 @@ time.sleep(3)
     
 # Process each trip
 dfs = []
-for in_dir in in_dirs:
-    print('Checking directory: ',in_dir)
-    for trip in trips:
-        
-        print('Checking trip: ',trip)
-        ######    
+sys.exit(0)
+for trip in trips:
+    print('Checking trip: ',trip)
+    for in_dir in in_dirs:
+        print('Checking directory: ',in_dir)
+          
         # Find filenames
         filenames = glob.glob('{0}/*{1}*.pickle'.format(in_dir, trip))
   
