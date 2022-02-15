@@ -242,7 +242,7 @@ if trainvalid_df is not None:
     trainvalid_df, feats_resampled = resample_df(trainvalid_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
     
     # Do feature extraction 
-    df_chunk, fe_filename = feature_extraction(trainvalid_df, keep_cols = trainvalid_df.columns, feats = input_feats, out_dir = out_dir, 
+    df_chunk, fe_filename = feature_extraction(trainvalid_df, keep_cols = trainvalid_df.columns.to_list(), feats = input_feats, out_dir = out_dir, 
                                                file_suff = routes_string, 
                                                write_out_file = True, recreate = recreate, sel_features = sel_features, 
                                                predict_mode = predict_mode)
