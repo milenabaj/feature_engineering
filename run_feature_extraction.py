@@ -201,7 +201,8 @@ for trip in trips:
           
         # Find filenames
         filenames = filenames + glob.glob('{0}/*{1}*.pickle'.format(in_dir, trip))
-  
+filenames=list(set(filenames)) 
+
 # Load
 dfs = []
 for filename in filenames:
@@ -213,15 +214,19 @@ for filename in filenames:
         df = df.head(dev_nrows)
      
     dfs.append(df)
-          
+print('Loaded files: ',filenames) 
+         
 # Data            
 df = pd.concat(dfs)
 df.reset_index(inplace=True, drop = True)
 sys.exit(0)
+
+# Predict mode
 if predict_mode:
     trainvalid_df = None
     test_df = df
-    
+  
+# Split
 elif 'test'in mode:
     
     # Trainvalid
