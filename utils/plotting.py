@@ -766,10 +766,12 @@ def save_hist(aligned, var, route = '', label = '', plot_suff = '', out_dir_plot
 
 def get_normalized_hist(x, var_name = '', out_dir='.', suff = ''):
     
+    if x.shape[0]==0:
+        return
+    
     x = x.to_numpy()
             
-    x0 = x[0]
-    if 'numpy' in str(type(x0)):
+    if 'object' in str(x.dtype):
         x = np.concatenate(x)
     
     fig, ax = plt.subplots()
