@@ -47,7 +47,8 @@ parser.add_argument('--recreate', action="store_true", help = 'Recreate files, e
 parser.add_argument('--mode',  default = 'trainvalidkfold_test', help = 'If you want to use the the loaded data for feature extraction and selection, use Choose between: trainvalid and trainvalidkfold. If you also want to prepare a part of it as a test dataset, use: trainvalid_test or trainvalidkfold_test. ')    
 parser.add_argument('--dev_mode', action="store_true", help = 'Run on a subset of lines only. Use for debugging purposes.')
 parser.add_argument('--predict_mode',  action="store_true", help = 'Prediction mode - use if you want to treat all loaded data as test data or in production mode. The code will load a list of selected features and extract only them.')    
-   
+parser.add_argument('--no_filter_speed', action="store_true", help = 'Do not filter speed.')
+    
 # Parse arguments
 args = parser.parse_args()
 routes = args.route
@@ -59,6 +60,7 @@ aran = args.aran
 viafrik = args.viafrik
 
 target = args.target
+filter_speed = not args.no_filter_speed
 load_add_sensors = args.load_add_sensors
 use_add_sensors = args.use_add_sensors
 window_size = args.window_size
@@ -98,7 +100,9 @@ if predict_mode and mode:
     print('Do not pass --predict_mode and --mode at the same time. Pass either --predict_mode or set mode to one of trainvalid, trainvalidkfold, trainvalid_test, trainvalidkfold_test.')
     sys.exit(0)    
     
-        
+suff = ''        
+if filter_speed:
+    suff = 'filter_speed'
     
 # Input sensors to load
 input_feats = ['GM.obd.spd_veh.value','GM.acc.xyz.x', 'GM.acc.xyz.y', 'GM.acc.xyz.z']
@@ -109,10 +113,12 @@ add_sensors = steering_sensors + wheel_pressure_sensors + other_sensors
 
 if use_add_sensors:
    input_feats = input_feats + add_sensors
+   suff = suff + '_add_sensors'
+else:
+   suff = suff + '_ßaccspeed'
        
 if predict_mode:
     input_feats = [var.split('GM.')[1] for var in input_feats] 
-    
     
     
 # Route and trip
@@ -172,7 +178,7 @@ routes_string = '_'.join(routes)
 out_dir_base = '/'.join(in_dir.split('/')[0:-1]).replace('aligned_','aligned_fe_fs_')
 if not use_add_sensors:
     out_dir_base = out_dir_base.replace('aligned_','aligned_fe_fs_')
-out_dir = '{0}/{1}'.format(out_dir_base, routes_string)
+out_dir = '{0}_{2}/{1}'.format(out_dir_base, routes_string)
 if not use_add_sensors:
     out_dir = out_dir.replace('_add_sensors','')
 if not os.path.exists(out_dir):
@@ -208,12 +214,23 @@ dfs = []
 for filename in filenames:
     print('Loading :',filename)
     df = pd.read_pickle(filename)
+    
+    # Drop other sensors
     if not use_add_sensors:
         df.drop(add_sensors, axis = 1, inplace = True)
+        
+    # Speed filter
+    if filter_speed:
+        df['b']= df['GM.obd.spd_veh.value'].apply(lambda row: (row<20).sum())
+        df = df[ df['b']==0]
+        df.reset_index(drop=True, inplace=True)
+        df.drop(['b'],axis=1, inplace=True)
+
     if dev_mode:
         df = df.head(dev_nrows)
-     
+        
     dfs.append(df)
+    
 print('Loaded files: ',filenames) 
          
 # Data            
@@ -256,10 +273,13 @@ if trainvalid_df is not None:
     # Do feature extraction 
     keep_cols = trainvalid_df.columns.to_list()
     trainvalid_df, fe_filename = feature_extraction(trainvalid_df, keep_cols = keep_cols, feats = input_feats, out_dir = out_dir, 
-                                               file_suff = routes_string + '_trainvalid', 
+                                               file_suff = routes_string + suff +'_trainvalid', 
                                                write_out_file = True, recreate = recreate, sel_features = sel_features, 
                                                predict_mode = predict_mode)
-
+    
+    # Do FS
+    
+    
 # Resample - FS on test        
 if test_df is not None:
     to_lengths_dict = {}
@@ -270,6 +290,8 @@ if test_df is not None:
         #print(to_lengths_dict)
         #to_lengths_dict = {'GM.acc.xyz.z': 369, 'GM.obd.spd_veh.value':309} # this was used for motorway
     test_df, _ = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
+    
+    # Do FS
        
 
 
