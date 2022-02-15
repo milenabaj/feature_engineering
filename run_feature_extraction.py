@@ -193,28 +193,27 @@ time.sleep(3)
 # Process aligned files
 # =====================================================================   #     
     
-# Process each trip
-dfs = []
-sys.exit(0)
+filenames = []
 for trip in trips:
     print('Checking trip: ',trip)
     for in_dir in in_dirs:
         print('Checking directory: ',in_dir)
           
         # Find filenames
-        filenames = glob.glob('{0}/*{1}*.pickle'.format(in_dir, trip))
+        filenames = filenames + glob.glob('{0}/*{1}*.pickle'.format(in_dir, trip))
   
-        # For each pass
-        for filename in filenames:
-            print('Loading :',filename)
-            df = pd.read_pickle(filename)
-            if not use_add_sensors:
-                df.drop(add_sensors, axis = 1, inplace = True)
-            if dev_mode:
-                df = df.head(dev_nrows)
-             
-            dfs.append(df)
-            
+# Load
+dfs = []
+for filename in filenames:
+    print('Loading :',filename)
+    df = pd.read_pickle(filename)
+    if not use_add_sensors:
+        df.drop(add_sensors, axis = 1, inplace = True)
+    if dev_mode:
+        df = df.head(dev_nrows)
+     
+    dfs.append(df)
+          
 # Data            
 df = pd.concat(dfs)
 df.reset_index(inplace=True, drop = True)
