@@ -191,9 +191,11 @@ time.sleep(3)
 # Process each trip
 dfs = []
 for in_dir in in_dirs:
+    print('Checking directory: ',in_dir)
     for trip in trips:
-        #print('Starting extraction for trip: ',trip)
-            
+        
+        print('Checking trip: ',trip)
+        ######    
         # Find filenames
         filenames = glob.glob('{0}/*{1}*.pickle'.format(in_dir, trip))
   
@@ -241,7 +243,7 @@ if trainvalid_df is not None:
     
     # Do feature extraction 
     df_chunk, fe_filename = feature_extraction(trainvalid_df, keep_cols = trainvalid_df.columns, feats = input_feats, out_dir = out_dir, 
-                                               file_suff = route_string, 
+                                               file_suff = routes_string, 
                                                write_out_file = True, recreate = recreate, sel_features = sel_features, 
                                                predict_mode = predict_mode)
 
