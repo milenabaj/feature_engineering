@@ -769,7 +769,7 @@ def get_normalized_hist(x, var_name = '', out_dir='.', suff = ''):
     x = x.to_numpy()
             
     x0 = x[0]
-    if 'numpy' in str(type(x0):
+    if 'numpy' in str(type(x0)):
         x = np.concatenate(x)
     
     fig, ax = plt.subplots()
