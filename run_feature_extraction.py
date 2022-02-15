@@ -219,7 +219,6 @@ print('Loaded files: ',filenames)
 # Data            
 df = pd.concat(dfs)
 df.reset_index(inplace=True, drop = True)
-sys.exit(0)
 
 # Predict mode
 if predict_mode:
