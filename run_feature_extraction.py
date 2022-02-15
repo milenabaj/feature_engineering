@@ -34,7 +34,8 @@ parser.add_argument('--aran', action='store_true', help = 'If this is aran data,
 parser.add_argument('--viafrik', action='store_true', help = 'If this is Viafrik friction data, pass true.')
 
 parser.add_argument('--target', help = 'Target for machine learning. Selected between: IRI, DI, KPI.')
-parser.add_argument('--load_add_sensors', action='store_true', help = 'Load additional sensors.') 
+parser.add_argument('--load_add_sensors', action='store_true', help = 'Load input dataset containing additional sensors.') 
+parser.add_argument('--use_add_sensors', action='store_true', help = 'Use additional sensors in fe and fs.') 
 parser.add_argument('--window_size', type=int, default=100)
 parser.add_argument('--step', type=int, default=10)
 
@@ -59,6 +60,7 @@ viafrik = args.viafrik
 
 target = args.target
 load_add_sensors = args.load_add_sensors
+use_add_sensors = args.use_add_sensors
 window_size = args.window_size
 step = args.step
 
@@ -100,12 +102,13 @@ if predict_mode and mode:
     
 # Input sensors to load
 input_feats = ['GM.obd.spd_veh.value','GM.acc.xyz.x', 'GM.acc.xyz.y', 'GM.acc.xyz.z']
-if load_add_sensors:
-    steering_sensors = ['GM.obd.strg_pos.value', 'GM.obd.strg_acc.value','GM.obd.strg_ang.value'] 
-    wheel_pressure_sensors =  ['GM.obd.whl_prs_rr.value', 'GM.obd.whl_prs_rl.value','GM.obd.whl_prs_fr.value','GM.obd.whl_prs_fl.value'] 
-    other_sensors = ['GM.obd.acc_yaw.value','GM.obd.trac_cons.value']
-    add_sensors = steering_sensors + wheel_pressure_sensors + other_sensors 
-    input_feats = input_feats + add_sensors
+steering_sensors = ['GM.obd.strg_pos.value', 'GM.obd.strg_acc.value','GM.obd.strg_ang.value'] 
+wheel_pressure_sensors =  ['GM.obd.whl_prs_rr.value', 'GM.obd.whl_prs_rl.value','GM.obd.whl_prs_fr.value','GM.obd.whl_prs_fl.value'] 
+other_sensors = ['GM.obd.acc_yaw.value','GM.obd.trac_cons.value']
+add_sensors = steering_sensors + wheel_pressure_sensors + other_sensors 
+
+if use_add_sensors:
+   input_feats = input_feats + add_sensors
        
 if predict_mode:
     input_feats = [var.split('GM.')[1] for var in input_feats] 
@@ -141,7 +144,7 @@ if not aran and not p79 and not viafrik:
     sys.exit(0)
  
 
-# Input directoryies
+# Input directories
 drd_veh = ''     
 if p79: 
     drd_veh = drd_veh + '_P79'
@@ -164,12 +167,14 @@ for route in routes:
         
     in_dirs.append(in_dir)
 
-# Out Directory
+# Out directory
 routes_string = '_'.join(routes)
 out_dir_base = '/'.join(in_dir.split('/')[0:-1]).replace('aligned_','aligned_fe_fs_')
+if not use_add_sensors:
+    out_dir_base = out_dir_base.replace('aligned_','aligned_fe_fs_')
 out_dir = '{0}/{1}'.format(out_dir_base, routes_string)
-if load_add_sensors:
-    out_dir = out_dir+'_add_sensors'
+if not use_add_sensors:
+    out_dir = out_dir.replace('_add_sensors','')
 if not os.path.exists(out_dir):
     os.makedirs(out_dir)
 
@@ -203,6 +208,8 @@ for in_dir in in_dirs:
         for filename in filenames:
             print('Loading :',filename)
             df = pd.read_pickle(filename)
+            if not use_add_sensors:
+                df.drop(add_sensors, axis = 1, inplace = True)
             if dev_mode:
                 df = df.head(dev_nrows)
              
@@ -210,7 +217,8 @@ for in_dir in in_dirs:
             
 # Data            
 df = pd.concat(dfs)
-
+df.reset_index(inplace=True, drop = True)
+sys.exit(0)
 if predict_mode:
     trainvalid_df = None
     test_df = df
@@ -242,8 +250,9 @@ if trainvalid_df is not None:
     trainvalid_df, feats_resampled = resample_df(trainvalid_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
     
     # Do feature extraction 
-    df_chunk, fe_filename = feature_extraction(trainvalid_df, keep_cols = trainvalid_df.columns.to_list(), feats = input_feats, out_dir = out_dir, 
-                                               file_suff = routes_string, 
+    keep_cols = trainvalid_df.columns.to_list()
+    trainvalid_df, fe_filename = feature_extraction(trainvalid_df, keep_cols = keep_cols, feats = input_feats, out_dir = out_dir, 
+                                               file_suff = routes_string + '_trainvalid', 
                                                write_out_file = True, recreate = recreate, sel_features = sel_features, 
                                                predict_mode = predict_mode)
 
@@ -251,7 +260,7 @@ if trainvalid_df is not None:
 if test_df is not None:
     to_lengths_dict = {}
     for feat in input_feats:
-        a =  trainvalid_df[feat].apply(lambda seq: seq.shape[0])
+        a =  test_df[feat].apply(lambda seq: seq.shape[0])
         l = int(a.quantile(0.90))
         to_lengths_dict[feat] = l
         #print(to_lengths_dict)

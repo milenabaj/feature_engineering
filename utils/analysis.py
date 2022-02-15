@@ -243,7 +243,6 @@ def feature_extraction(df, out_dir, keep_cols = [], feats = ['GM.obd.spd_veh.val
     return df, out_filename
 
 
-
 def extract_inner_df(df, feats = ['GM.obd.spd_veh.value','GM.acc.xyz.z'], remove_vars = ['GM.acc.xyz.x', 'GM.acc.xyz.y'], do_clean_nans = False):
     
     # Extract to nice structure
@@ -290,12 +289,13 @@ def extract_inner_df(df, feats = ['GM.obd.spd_veh.value','GM.acc.xyz.z'], remove
     #        df.rename(columns={col:new_col}, inplace=True)
     
     return
+
     
 def find_optimal_subset(X, y, valid_indices = None, n_trees=50, fmax = None, reg_model = True, bins = None, target_name = 'target', sel_features_names = None,
                         out_dir = '.', outfile_suff = 'feature_selection', recreate = False,  save_output = True):
         
   
-    # Iinput filenames
+    # Input filenames
     if reg_model:
         x_filename = '{0}/{1}_regression.pickle'.format(out_dir, outfile_suff)
     else:
@@ -312,6 +312,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=50, fmax = None, reg
         sel_features_names = list(X_filt.columns)
         
         print('Files loaded.')
+    
     
     # Create files if they do not exist
     elif not sel_features_names:
