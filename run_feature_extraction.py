@@ -41,7 +41,7 @@ parser.add_argument('--step', type=int, default=10)
 
 parser.add_argument('--json_route', default= "json/routes.json", help='Json file with route information.')
 parser.add_argument('--json_sel_feats', default= "json/selected_features.json", help='Json file with selected features information. Will be written if any of the mode option is set or only laoded if predict_mode is set.')
-parser.add_argument('--in_dir_base', default= "data", help='Input directory base.')
+parser.add_argument('--in_dir', default= "data", help='Input directory base.')
 parser.add_argument('--recreate', action="store_true", help = 'Recreate files, even if present. If False and the files are present, the data will be loaded from them.')
 
 parser.add_argument('--mode',  default = 'trainvalidkfold_test', help = 'If you want to use the the loaded data for feature extraction and selection, use Choose between: trainvalid and trainvalidkfold. If you also want to prepare a part of it as a test dataset, use: trainvalid_test or trainvalidkfold_test. ')    
@@ -66,7 +66,7 @@ step = args.step
 
 json_route = args.json_route
 json_feats_file = args.json_sel_feats
-in_dir_base = args.in_dir_base
+in_dir = args.in_dir
 recreate = args.recreate
 
 mode = args.mode
@@ -157,7 +157,7 @@ if drd_veh.startswith('_'):
    
 in_dirs = []
 for route in routes:
-    in_dir = '{0}/aligned_GM_{1}_data_window-{2}-step-{3}/{4}'.format(in_dir_base, drd_veh, window_size, step, route) 
+    in_dir = '{0}/aligned_GM_{1}_data_window-{2}-step-{3}/{4}'.format(in_dir, drd_veh, window_size, step, route) 
     
     if predict_mode:
         in_dir = in_dir.replace('aligned','predict_mode')
