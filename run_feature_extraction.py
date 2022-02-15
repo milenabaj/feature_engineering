@@ -178,7 +178,7 @@ routes_string = '_'.join(routes)
 out_dir_base = '/'.join(in_dir.split('/')[0:-1]).replace('aligned_','aligned_fe_fs_')
 if not use_add_sensors:
     out_dir_base = out_dir_base.replace('aligned_','aligned_fe_fs_')
-out_dir = '{0}_{2}/{1}'.format(out_dir_base, routes_string)
+out_dir = '{0}/{1}_{2}'.format(out_dir_base, routes_string, suff)
 if not use_add_sensors:
     out_dir = out_dir.replace('_add_sensors','')
 if not os.path.exists(out_dir):
