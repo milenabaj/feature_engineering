@@ -245,10 +245,17 @@ non_GM_cols = [col for col in  df.columns if not col.startswith('GM.')]
 clean_nans(df, exclude_cols=non_GM_cols)
 df.reset_index(inplace=True, drop = True)
 
+# Plot 
+vars_to_plot = ['IRI_mean', 'GM.obd.spd_veh.value']
+for var in vars_to_plot:
+    x = df[var]
+    get_normalized_hist(x, var_name = var, out_dir = out_dir_plots, suff = '_all')
+    
 # Predict mode
 if predict_mode:
     trainvalid_df = None
     test_df = df
+    vars_to_plot = ['GM.obd.spd_veh.value']
   
 # Split
 elif 'test'in mode:
@@ -276,8 +283,8 @@ if trainvalid_df is not None:
         #print(to_lengths_dict)
         #to_lengths_dict = {'GM.acc.xyz.z': 369, 'GM.obd.spd_veh.value':309} # this was used for motorway
         
-    #var = 'GM.obd.spd_veh.value'
-    for var in ['IRI_mean', 'GM.obd.spd_veh.value']:
+    # Plot trainvalid
+    for var in vars_to_plot:
         x = trainvalid_df[var]
         get_normalized_hist(x, var_name = var, out_dir = out_dir_plots, suff = '_trainvalid')
     
@@ -303,7 +310,11 @@ if trainvalid_df is not None:
     
     # Do FS
 
-    
+# Plot test
+for var in vars_to_plot:
+    x = test_df[var]
+    get_normalized_hist(x, var_name = var, out_dir = out_dir_plots, suff = '_test')
+       
 # Resample - FS on test        
 if test_df is not None:
     to_lengths_dict = {}
