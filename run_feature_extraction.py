@@ -66,7 +66,7 @@ step = args.step
 
 json_route = args.json_route
 json_feats_file = args.json_sel_feats
-in_dir = args.in_dir
+in_dir_base = args.in_dir_base
 recreate = args.recreate
 
 mode = args.mode
@@ -157,7 +157,7 @@ if drd_veh.startswith('_'):
    
 in_dirs = []
 for route in routes:
-    in_dir = '{0}/aligned_GM_{1}_data_window-{2}-step-{3}/{4}'.format(in_dir, drd_veh, window_size, step, route) 
+    in_dir = '{0}/aligned_GM_{1}_data_window-{2}-step-{3}/{4}'.format(in_dir_base, drd_veh, window_size, step, route) 
     
     if predict_mode:
         in_dir = in_dir.replace('aligned','predict_mode')
@@ -219,6 +219,7 @@ print('Loaded files: ',filenames)
 # Data            
 df = pd.concat(dfs)
 df.reset_index(inplace=True, drop = True)
+
 
 # Predict mode
 if predict_mode:
