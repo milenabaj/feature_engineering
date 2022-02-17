@@ -351,8 +351,8 @@ if trainvalid_df is not None:
     trainvalid_df.reset_index(drop=True, inplace = True)
     
     # Select X and target 
-    X_trainvalid_fe = X_trainvalid_df[fe_cols] 
-    y_trainvalid =  train_df[target_name]
+    X_trainvalid_fe = trainvalid_df[fe_cols] 
+    y_trainvalid =  trainvalid_df[target_name]
     
     # Get valid indices
     if 'kfold' in mode:
@@ -498,6 +498,7 @@ elif not predict_mode:
     # edit paper template
     # add fs plots: correlations
     # extract selected features from test
+    # merge branch on git
     # run everything on KPI and DI and all defects
     # push package to git
     # update modelling package
