@@ -81,7 +81,7 @@ dev_nrows = 2
 routes = ['M3_VH','M3_HH']
 p79 = True
 aran = True
-recreate = True
+#recreate = True
 load_add_sensors = True
 #dev_mode = True
 #=================================#  
@@ -201,7 +201,6 @@ time.sleep(3)
 # =====================================================================   #
 # Process aligned files
 # =====================================================================   #     
-    
 filenames = []
 for trip in trips:
     print('Checking trip: ',trip)
@@ -300,7 +299,8 @@ if trainvalid_df is not None:
                                                predict_mode = predict_mode)
 
     # Write info about trainvalid
-  
+    
+    
     # Remove some columns if needed
     to_rem = []
     avail_cols = list(trainvalid_df.columns)
@@ -330,8 +330,6 @@ if test_df is not None:
     
     # Do FS
        
-
-
 
 sys.exit(0)       
             
