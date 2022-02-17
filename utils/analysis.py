@@ -295,7 +295,7 @@ def extract_inner_df(df, feats = ['GM.obd.spd_veh.value','GM.acc.xyz.x', 'GM.acc
     return
 
     
-def find_optimal_subset(X, y, valid_indices = None, n_trees=50, fmax = None, reg_model = True, bins = None, target_name = 'target', sel_features_names = None,
+def find_optimal_subset(X, y, valid_indices = None, n_trees=100, fmax = None, reg_model = True, bins = None, target_name = 'target', sel_features_names = None,
                         out_dir = '.', outfile_suff = 'feature_selection', recreate = False,  save_output = True):
         
   

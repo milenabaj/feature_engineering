@@ -29,11 +29,11 @@ parser.add_argument('--route', '--list', nargs='+', help='Process all trips on t
 parser.add_argument('--trip', type = int, help='Process this trip only.')
 
 # Vehicle type to align with GM: you can pass multiple
-parser.add_argument('--p79', action='store_true', help = 'If this is p79 data, pass true.')
-parser.add_argument('--aran', action='store_true', help = 'If this is aran data, pass true.')
-parser.add_argument('--viafrik', action='store_true', help = 'If this is Viafrik friction data, pass true.')
+parser.add_argument('--p79', action='store_true', help = 'If you want to load the aligned dataset with p79 data, pass true.')
+parser.add_argument('--aran', action='store_true', help = 'If you want to load the aligned dataset with aran data, pass true.')
+parser.add_argument('--viafrik', action='store_true', help = 'If you want to load the aligned dataset with Viafrik friction data, pass true.')
 
-parser.add_argument('--target', help = 'Target for machine learning. Selected between: IRI, DI, KPI.')
+parser.add_argument('--target', help = 'Target for machine learning. Select between: IRI_mean, DI, KPI.')
 parser.add_argument('--load_add_sensors', action='store_true', help = 'Load input dataset containing additional sensors.') 
 parser.add_argument('--use_3dacc', action='store_true', help = 'Use 3D acceleration sensors.') 
 parser.add_argument('--use_add_sensors', action='store_true', help = 'Use additional sensors in fe and fs.') 
@@ -41,9 +41,9 @@ parser.add_argument('--window_size', type=int, default=100)
 parser.add_argument('--step', type=int, default=10)
 
 parser.add_argument('--json_route', default= "json/routes.json", help='Json file with route information.')
-parser.add_argument('--json_sel_feats', default= "json/selected_features.json", help='Json file with selected features information. Will be written if any of the mode option is set or only laoded if predict_mode is set.')
 parser.add_argument('--in_dir', default= "data", help='Input directory base.')
-parser.add_argument('--recreate', action="store_true", help = 'Recreate files, even if present. If False and the files are present, the data will be loaded from them.')
+parser.add_argument('--recreate_fe', action="store_true", help = 'Recreate fe files, even if present. If False and the files are present, the data will be loaded from them.')
+parser.add_argument('--recreate_fs', action="store_true", help = 'Recreate fs files, even if present. If False and the files are present, the data will be loaded from them.')
 
 parser.add_argument('--mode',  default = 'trainvalidkfold_test', help = 'If you want to use the the loaded data for feature extraction and selection, use Choose between: trainvalid and trainvalidkfold. If you also want to prepare a part of it as a test dataset, use: trainvalid_test or trainvalidkfold_test. ')    
 parser.add_argument('--dev_mode', action="store_true", help = 'Run on a subset of lines only. Use for debugging purposes.')
@@ -60,6 +60,9 @@ p79 = args.p79
 aran = args.aran
 viafrik = args.viafrik
 
+# Target
+target_name = args.target_name
+
 target = args.target
 filter_speed = not args.no_filter_speed
 use_3dacc = args.use_3dacc
@@ -70,9 +73,9 @@ window_size = args.window_size
 step = args.step
 
 json_route = args.json_route
-json_feats_file = args.json_sel_feats
 in_dir_base = args.in_dir
-recreate = args.recreate
+recreate_fe = args.recreate_fe
+recreate_fs = args.recreate_fs
 
 mode = args.mode
 predict_mode = args.predict_mode
@@ -84,8 +87,8 @@ dev_nrows = 2
 routes = ['M3_VH','M3_HH']
 p79 = True
 aran = True
-#recreate = True
 load_add_sensors = True
+recreate_fs = True
 #dev_mode = True
 #=================================#  
 # Check mode
@@ -193,10 +196,17 @@ if load_add_sensors and not use_add_sensors:
 if not os.path.exists(out_dir):
     os.makedirs(out_dir)
     
-out_dir_plots = '{0}/plots'.format(out_dir)
-if not os.path.exists(out_dir_plots):
-    os.makedirs(out_dir_plots)
+out_dir_plots_fe = '{0}/plots_fe'.format(out_dir)
+if not os.path.exists(out_dir_plots_fe):
+    os.makedirs(out_dir_plots_fe)
 
+out_dir_plots_fs = '{0}/plots_fs'.format(out_dir)
+if not os.path.exists(out_dir_plots_fs):
+    os.makedirs(out_dir_plots_fs)
+
+
+json_feats_file = 'json/selected_features_{0}_route-{0}_GM_trip-{1}_sensors-{2}.json'.format(drd_veh, routes_string, suff)
+ 
 print('p79 data? ', p79)
 print('Aran data? ', aran)
 print('Viafrik data? ',viafrik)
@@ -304,7 +314,7 @@ if trainvalid_df is not None:
     keep_cols = trainvalid_df.columns.to_list()
     trainvalid_df, fe_filename = feature_extraction(trainvalid_df, keep_cols = keep_cols, feats = input_feats, out_dir = out_dir, 
                                                file_suff = routes_string + suff +'_trainvalid', 
-                                               write_out_file = True, recreate = recreate, sel_features = sel_features, 
+                                               write_out_file = True, recreate = recreate_fe, sel_features = sel_features, 
                                                predict_mode = predict_mode)
  
 
@@ -326,9 +336,8 @@ if trainvalid_df is not None:
     # Plot histogram of each extracted feature and correlation with the target
     for var in fe_cols:
         x = trainvalid_df[var]
-        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots, suff = suff, norm = False)
+        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = 'trainvalid_'+suff, norm = False)
        
-    sys.exit(0)
     # Write info about trainvalid
     # todo
     
@@ -342,19 +351,9 @@ if trainvalid_df is not None:
     trainvalid_df.drop(to_rem,axis=1,inplace=True)
     trainvalid_df.reset_index(drop=True, inplace = True)
     
-    # Select X and target
-    X_columns = [] 
-    for GM_input in input_feats:
-        GM_features = [col for col in trainvalid_df.columns if col.startswith('GM')]
-    
-    X_train_fe = train_df[GM_features] 
-    y_train =  train_df[target_name]
-    
-    X_valid_fe = valid_df[GM_features] 
-    y_valid =  valid_df[target_name]
-    
-    X_test_fe = test_df[GM_features] 
-    y_test =  test_df[target_name]
+    # Select X and target 
+    X_trainvalid_fe = X_trainvalid_df[fe_cols] 
+    y_trainvalid =  train_df[target_name]
     
     # Get valid indices
     if 'kfold' in mode:
@@ -366,16 +365,32 @@ if trainvalid_df is not None:
         X_valid_indices = trainvalid_df.iloc[-valid_nrows:].index.tolist()
         
     # Do FS
-    X_trainvalid_fs, sel_feature_names = find_optimal_subset(X_trainvalid_fe, y_trainvalid, valid_indices = X_valid_indices, n_trees=nt, reg_model = True, target_name = target_name,
-                                                                 out_dir = out_dir, fmax = fmax, outfile_suff = train_outfile_suff, recreate = recreate)
-        
-       
+    #fmax = X_trainvalid_fe.shape[0]-1
+    fmax = 1
+    X_trainvalid_fs, sel_feature_names = find_optimal_subset(X_trainvalid_fe, y_trainvalid, valid_indices = X_valid_indices, reg_model = True, target_name = target_name,
+                                                                 out_dir = out_dir, fmax = fmax, outfile_suff = 'trainvalid_' + suff, recreate = recreate_fs)
     
-
+    # Write json file
+    f =  open(json_feats_file, "w") 
+    sel_feat_data = {"features":sel_feature_names}
+    json.dump(sel_feat_data, f)    
+    f.close()
+    
+    n_sel_features = len(sel_feature_names) 
+    print('Selected features are: {0}'.format(sel_feature_names))
+    print('Number of selected features is:{0}'.format(n_sel_features))
+    
+    # Plot histogram of each selected feature and correlation with the target
+    for var in fe_cols:
+        x = trainvalid_df[var]
+        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_ff, suff = 'trainvalid_'+suff, norm = False)
+       
+    sys.exit(0)
+    
 # Plot test
 for var in vars_to_plot:
     x = test_df[var]
-    get_normalized_hist(x, var_name = var, out_dir = out_dir_plots, suff = '_test')
+    get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = '_test')
        
 # Resample - FS on test        
 if test_df is not None:

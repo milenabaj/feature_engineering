@@ -824,3 +824,66 @@ def get_normalized_hist(x, var_name = '', out_dir='.', suff = '', norm = True):
     print('Saved: ',out_filename)    
 
     return 
+
+'''
+def get_scatter_plot(x, var_name = '', out_dir='.', suff = '', norm = True):
+    
+    if x.shape[0]==0:
+        return
+    
+    x = x.to_numpy()
+            
+    if 'object' in str(x.dtype):
+        x = np.concatenate(x)
+    
+    fig, ax = plt.subplots()
+    xmin = x.min()
+    if xmin-0.1*xmin>0:
+        xmin = xmin-0.1*xmin
+    xmax = x.max()
+    xmax = xmax + 0.1*xmax
+    binrange = [xmin, xmax]  
+    
+    
+    if 'IRI' in var_name:
+        xlabel = 'IRI [m/km]'
+        bins = 20
+    else:
+        xlabel = var_name
+        bins = 20
+    
+    # Plot
+    if norm:
+        sns.histplot(x, binrange=binrange, bins=bins, stat = 'probability', common_norm = True, ax = ax)
+        ax.set_ylabel('Percent [%]')
+        ax.set_xlabel(xlabel)
+        
+        # Set yticks to show percent
+        yticks = ax.get_yticks()*100    
+        yticks = ax.get_yticks()
+        yticks = yticks*100
+        yticks = yticks.astype(int) 
+        #ax.yaxis.yaxis.set_major_formatter(plt.matplotlib.ticker.StrMethodFormatter('{x:,.0f}'))
+        ax.set_yticklabels(yticks)
+        
+        # Xticks
+        ml = MultipleLocator(5)
+        ax.xaxis.set_minor_locator(ml)
+        ml2 = MultipleLocator(10)
+        ax.xaxis.set_minor_locator(ml2)
+    else:
+        sns.histplot(x, binrange=binrange, ax = ax)
+        ax.set_ylabel('Count')
+        ax.set_xlabel(xlabel)
+        
+    # Figure size
+    dpi  = 300
+    xs = 4
+    fig.set_size_inches([xs,0.66*xs])
+    out_filename = '{0}/normalized_{1}{2}.eps'.format(out_dir, var_name, suff)
+    fig.savefig(out_filename,bbox_inches='tight', dpi = dpi)   
+    fig.savefig(out_filename.replace('.eps','.pickle'),bbox_inches='tight', dpi = dpi) 
+    print('Saved: ',out_filename)    
+
+    return 
+'''
