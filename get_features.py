@@ -197,7 +197,6 @@ print('Dev mode?: ',dev_mode)
 print('Input directories: ', in_dirs)
 print('Output directory: ', out_dir)
 time.sleep(3)  
-sys.exit(0)
 
 # =====================================================================   #
 # Process aligned files
