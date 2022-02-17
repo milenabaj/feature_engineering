@@ -297,14 +297,21 @@ if trainvalid_df is not None:
                                                file_suff = routes_string + suff +'_trainvalid', 
                                                write_out_file = True, recreate = recreate, sel_features = sel_features, 
                                                predict_mode = predict_mode)
-    sys.exit(0)
+ 
 
     cols = trainvalid_df.columns.to_list()
     fe_cols = list(set(cols).difference(keep_cols))
+    
+    fe = {}
+    for input_sensor in input_feats:
+        fe_this_sensor = [col for col in fe_cols if input_sensor in col]
+        n_fe_this_sensor = len(fe_this_sensor)
+        print('=== Sensor: {0}, extracted: {1} features'.format(input_sensor,  n_fe_this_sensor))
+        fe[input_sensor] =  fe_this_sensor
+      
+    sys.exit(0)
     # Write info about trainvalid
-        
-    sel_features = [feat.split('GM.')[1] for feat in sel_features]
-    df = df[sel_features]
+    # todo
     
     # Remove some columns if needed
     to_rem = []
