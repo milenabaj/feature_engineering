@@ -76,13 +76,13 @@ def plot_fs(nf, res, var_label = 'MSE',title='', size=2,
       if size==2:
           plt.rcParams.update({'font.size': 6})
           figsize=[2.5,2]
-          dpi= 1000
+          dpi= 300
           ms = 3  
           ls = 7
       if size==3:
           plt.rcParams.update({'font.size': 7})
           figsize=[4,3]
-          dpi= 1000
+          dpi= 300
           ms = 6
           ls = 9
 
@@ -421,7 +421,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=100, fmax = None, re
         print('Wrote latex to: ',latex_file)
           
         # Plot
-        plot_filename =  x_filename.replace('.pickle','_sfs.pdf')
+        plot_filename =  x_filename.replace('.pickle','_sfs.eps')
         plot_fs(feats.index, res = feats['MSE (subset)'], var_label='MSE',filename=plot_filename)
         print('Saved: ',plot_filename)
         

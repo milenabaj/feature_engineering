@@ -61,9 +61,8 @@ aran = args.aran
 viafrik = args.viafrik
 
 # Target
-target_name = args.target_name
+target_name = args.target
 
-target = args.target
 filter_speed = not args.no_filter_speed
 use_3dacc = args.use_3dacc
 load_add_sensors = args.load_add_sensors
@@ -365,8 +364,10 @@ if trainvalid_df is not None:
         X_valid_indices = trainvalid_df.iloc[-valid_nrows:].index.tolist()
         
     # Do FS
-    #fmax = X_trainvalid_fe.shape[0]-1
-    fmax = 1
+    if dev_mode:
+        fmax = 1
+    else:
+        fmax = X_trainvalid_fe.shape[0]-1
     X_trainvalid_fs, sel_feature_names = find_optimal_subset(X_trainvalid_fe, y_trainvalid, valid_indices = X_valid_indices, reg_model = True, target_name = target_name,
                                                                  out_dir = out_dir, fmax = fmax, outfile_suff = 'trainvalid_' + suff, recreate = recreate_fs)
     
