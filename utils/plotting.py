@@ -820,7 +820,8 @@ def get_normalized_hist(x, var_name = '', out_dir='.', suff = '', norm = True):
     fig.set_size_inches([xs,0.66*xs])
     out_filename = '{0}/normalized_{1}{2}.eps'.format(out_dir, var_name, suff)
     fig.savefig(out_filename,bbox_inches='tight', dpi = dpi)   
-    fig.savefig(out_filename.replace('.eps','.pickle'),bbox_inches='tight', dpi = dpi) 
+    with open(out_filename.replace('.eps','.pickle'), 'wb') as handle:
+        pickle.dump(fig, handle, protocol=pickle.HIGHEST_PROTOCOL)
     print('Saved: ',out_filename)    
 
     return 
