@@ -247,7 +247,7 @@ def feature_extraction(df, out_dir, keep_cols = [], feats = ['GM.obd.spd_veh.val
     return df, out_filename
 
 
-def extract_inner_df(df, feats = ['GM.obd.spd_veh.value','GM.acc.xyz.z'], remove_vars = ['GM.acc.xyz.x', 'GM.acc.xyz.y'], do_clean_nans = False):
+def extract_inner_df(df, feats = ['GM.obd.spd_veh.value','GM.acc.xyz.x', 'GM.acc.xyz.y', 'GM.acc.xyz.z'], remove_vars = [], do_clean_nans = False):
     
     # Extract to nice structure
     for var in feats: 

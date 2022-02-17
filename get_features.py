@@ -304,10 +304,13 @@ if trainvalid_df is not None:
     
     fe = {}
     for input_sensor in input_feats:
+        print('Exploring extracted features for: {0}'.format(input_sensor))
         fe_this_sensor = [col for col in fe_cols if input_sensor in col]
         n_fe_this_sensor = len(fe_this_sensor)
         print('=== Sensor: {0}, extracted: {1} features'.format(input_sensor,  n_fe_this_sensor))
         fe[input_sensor] =  fe_this_sensor
+        
+        # Plot histogram of each extracted feature and correlation with the target
       
     sys.exit(0)
     # Write info about trainvalid
