@@ -265,7 +265,7 @@ df.reset_index(inplace=True, drop = True)
 vars_to_plot = ['IRI_mean', 'GM.obd.spd_veh.value']
 for var in vars_to_plot:
     x = df[var]
-    get_normalized_hist_fe(x, var_name = var, out_dir = out_dir_plots_fs, suff = '_all')
+    get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = '_all')
     
 # Predict mode
 if predict_mode:
@@ -384,7 +384,7 @@ if trainvalid_df is not None:
     # Plot histogram of each selected feature and correlation with the target
     for var in fe_cols:
         x = trainvalid_df[var]
-        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_ff, suff = 'trainvalid_'+suff, norm = False)
+        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'trainvalid_'+suff, norm = False)
        
     sys.exit(0)
     
