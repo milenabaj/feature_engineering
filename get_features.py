@@ -365,7 +365,7 @@ if trainvalid_df is not None:
         
     # Do FS
     X_trainvalid_fs, sel_feature_names = find_optimal_subset(X_trainvalid_fe, y_trainvalid, valid_indices = X_valid_indices, reg_model = True, target_name = target_name,
-                                                                 out_dir = out_dir, fmax = fmax, outfile_suff = 'trainvalid_' + suff, recreate = recreate_fs)
+                                                                 out_dir = out_dir, outfile_suff = 'trainvalid_' + suff, recreate = recreate_fs)
     
     # Write json file
     f =  open(json_feats_file, "w") 
