@@ -818,9 +818,9 @@ def get_normalized_hist(x, var_name = '', out_dir='.', suff = '', norm = True):
     dpi  = 300
     xs = 4
     fig.set_size_inches([xs,0.66*xs])
-    out_filename = '{0}/normalized_{1}{2}.png'.format(out_dir, var_name, suff)
-    fig.savefig(out_filename,bbox_inches='tight', dpi = dpi) 
-    fig.savefig(out_filename.replace('.png','.eps'),bbox_inches='tight', dpi = dpi)     
+    out_filename = '{0}/normalized_{1}{2}.eps'.format(out_dir, var_name, suff)
+    fig.savefig(out_filename,bbox_inches='tight', dpi = dpi)   
+    fig.savefig(out_filename.replace('.eps','.pickle'),bbox_inches='tight', dpi = dpi) 
     print('Saved: ',out_filename)    
 
     return 
