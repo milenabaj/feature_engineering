@@ -304,7 +304,7 @@ if trainvalid_df is not None:
     # Write info about trainvalid
         
     sel_features = [feat.split('GM.')[1] for feat in sel_features]
-        df = df[sel_features]
+    df = df[sel_features]
     
     # Remove some columns if needed
     to_rem = []
