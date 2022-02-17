@@ -236,11 +236,11 @@ for filename in filenames:
 print('Loaded files: ',filenames) 
          
 # Data            
-df = pd.concat(dfs)
+df = pd.concat(dfs)  #without and with speed filter = 3300, 33.1 km
 
 # Prepare data
 non_GM_cols = [col for col in  df.columns if not col.startswith('GM.')]
-clean_nans(df, exclude_cols=non_GM_cols)
+clean_nans(df, exclude_cols=non_GM_cols) # 1609
 df.reset_index(inplace=True, drop = True)
 
 # Plot 
@@ -267,8 +267,8 @@ elif 'test'in mode:
     test_df = df[trainvalid_n:]
     test_df.reset_index(inplace=True, drop=True)
 else:
-    trainvalid_df = df
-    test_df = None
+    trainvalid_df = df #1287
+    test_df = None # 322
 
                                     
 # Resample -  FE - FS on trainvalid
@@ -297,9 +297,14 @@ if trainvalid_df is not None:
                                                file_suff = routes_string + suff +'_trainvalid', 
                                                write_out_file = True, recreate = recreate, sel_features = sel_features, 
                                                predict_mode = predict_mode)
+    sys.exit(0)
 
+    cols = trainvalid_df.columns.to_list()
+    fe_cols = list(set(cols).difference(keep_cols))
     # Write info about trainvalid
-    
+        
+    sel_features = [feat.split('GM.')[1] for feat in sel_features]
+        df = df[sel_features]
     
     # Remove some columns if needed
     to_rem = []
@@ -309,8 +314,37 @@ if trainvalid_df is not None:
              to_rem.append(col)  
 
     trainvalid_df.drop(to_rem,axis=1,inplace=True)
+    trainvalid_df.reset_index(drop=True, inplace = True)
     
+    # Select X and target
+    X_columns = [] 
+    for GM_input in input_feats:
+        GM_features = [col for col in trainvalid_df.columns if col.startswith('GM')]
+    
+    X_train_fe = train_df[GM_features] 
+    y_train =  train_df[target_name]
+    
+    X_valid_fe = valid_df[GM_features] 
+    y_valid =  valid_df[target_name]
+    
+    X_test_fe = test_df[GM_features] 
+    y_test =  test_df[target_name]
+    
+    # Get valid indices
+    if 'kfold' in mode:
+        print('SFS will be done with kfold validation')
+        X_valid_indices = None # the trainvalid fs will be done in kfold manner
+    else:
+        print('SFS will be done with train-valid split validation')
+        valid_nrows = int(0.2*trainvalid_df.shape[0])
+        X_valid_indices = trainvalid_df.iloc[-valid_nrows:].index.tolist()
+        
     # Do FS
+    X_trainvalid_fs, sel_feature_names = find_optimal_subset(X_trainvalid_fe, y_trainvalid, valid_indices = X_valid_indices, n_trees=nt, reg_model = True, target_name = target_name,
+                                                                 out_dir = out_dir, fmax = fmax, outfile_suff = train_outfile_suff, recreate = recreate)
+        
+       
+    
 
 # Plot test
 for var in vars_to_plot:
@@ -328,7 +362,7 @@ if test_df is not None:
         #to_lengths_dict = {'GM.acc.xyz.z': 369, 'GM.obd.spd_veh.value':309} # this was used for motorway
     test_df, _ = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
     
-    # Do FS
+    # Do FE for only selected feature
        
 
 sys.exit(0)       

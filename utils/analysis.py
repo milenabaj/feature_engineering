@@ -188,6 +188,11 @@ def feature_extraction(df, out_dir, keep_cols = [], feats = ['GM.obd.spd_veh.val
     if not recreate and os.path.exists(out_filename):
         with open(out_filename, 'rb') as handle:
             df = pickle.load(handle)
+            
+            # Extract FE object
+            extract_inner_df(df, feats = feats, do_clean_nans=True)    
+            df.reset_index(inplace=True, drop = True)
+            #df.to_pickle
             print('File succesfully loaded.')
                   
     # Compute features 
@@ -233,6 +238,10 @@ def feature_extraction(df, out_dir, keep_cols = [], feats = ['GM.obd.spd_veh.val
         # Drop rows where tsfel is not computed  
         df = df[keep_cols] #here
         #df.dropna(axis=0, inplace=True)
+        df.reset_index(inplace=True, drop = True)
+        
+        # Extract FE object
+        extract_inner_df(df, feats = feats, do_clean_nans=True)    
         df.reset_index(inplace=True, drop = True)
 
         # Save  
@@ -343,7 +352,6 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=50, fmax = None, reg
                                                                                verbose=2,
                                                                                scoring='neg_mean_squared_error',
                                                                                cv = tscv)
-                                                                               #cv=valid_subset)
             else:
                 feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, bootstrap = True, min_impurity_decrease=1e-2), 
                                                                                n_jobs=-1,
