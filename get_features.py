@@ -176,11 +176,11 @@ for route in routes:
 # Out directory
 routes_string = '_'.join(routes)
 out_dir_base = '/'.join(in_dir.split('/')[0:-1]).replace('aligned_','aligned_fe_fs_')
-if not use_add_sensors:
-    out_dir_base = out_dir_base.replace('aligned_','aligned_fe_fs_')
 out_dir = '{0}/{1}_{2}'.format(out_dir_base, routes_string, suff)
-if not use_add_sensors:
+if load_add_sensors and not use_add_sensors:
     out_dir = out_dir.replace('_add_sensors','')
+    
+# Create dir
 if not os.path.exists(out_dir):
     os.makedirs(out_dir)
     
@@ -197,7 +197,7 @@ print('Dev mode?: ',dev_mode)
 print('Input directories: ', in_dirs)
 print('Output directory: ', out_dir)
 time.sleep(3)  
-
+sys.exit(0)
 
 # =====================================================================   #
 # Process aligned files
