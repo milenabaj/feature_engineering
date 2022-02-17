@@ -302,7 +302,7 @@ if trainvalid_df is not None:
     # Plot trainvalid
     for var in vars_to_plot:
         x = trainvalid_df[var]
-        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots, suff = '_trainvalid')
+        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = '_trainvalid')
     
     # Write some info
     
@@ -493,4 +493,12 @@ elif not predict_mode:
     test_merged.to_pickle(test_filename)
     print('Saved to: ',test_filename)
     
+    
+# TOMORROW:
+    # edit paper template
+    # add fs plots: correlations
+    # extract selected features from test
+    # run everything on KPI and DI and all defects
+    # push package to git
+    # update modelling package
         
