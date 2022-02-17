@@ -810,7 +810,7 @@ def get_normalized_hist(x, var_name = '', out_dir='.', suff = '', norm = True):
         ml2 = MultipleLocator(10)
         ax.xaxis.set_minor_locator(ml2)
     else:
-        sns.histplot(x, binrange=binrange, bins=bins, ax = ax)
+        sns.histplot(x, binrange=binrange, ax = ax)
         ax.set_ylabel('Count')
         ax.set_xlabel(xlabel)
         
