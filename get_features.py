@@ -35,6 +35,7 @@ parser.add_argument('--viafrik', action='store_true', help = 'If this is Viafrik
 
 parser.add_argument('--target', help = 'Target for machine learning. Selected between: IRI, DI, KPI.')
 parser.add_argument('--load_add_sensors', action='store_true', help = 'Load input dataset containing additional sensors.') 
+parser.add_argument('--use_3dacc', action='store_true', help = 'Use 3D acceleration sensors.') 
 parser.add_argument('--use_add_sensors', action='store_true', help = 'Use additional sensors in fe and fs.') 
 parser.add_argument('--window_size', type=int, default=100)
 parser.add_argument('--step', type=int, default=10)
@@ -61,8 +62,10 @@ viafrik = args.viafrik
 
 target = args.target
 filter_speed = not args.no_filter_speed
+use_3dacc = args.use_3dacc
 load_add_sensors = args.load_add_sensors
 use_add_sensors = args.use_add_sensors
+use_3dacc = args.use_3dacc
 window_size = args.window_size
 step = args.step
 
@@ -103,24 +106,30 @@ if predict_mode and mode:
 suff = ''        
 if filter_speed:
     suff = 'filter_speed'
-    
-# Input sensors to load
-input_feats = ['GM.obd.spd_veh.value','GM.acc.xyz.x', 'GM.acc.xyz.y', 'GM.acc.xyz.z']
+
+
+# Basic sensors: acceleration and speed
+if use_3dacc:
+   input_feats = ['GM.obd.spd_veh.value','GM.acc.xyz.x', 'GM.acc.xyz.y', 'GM.acc.xyz.z']
+   suff = suff + '_3daccspeed'
+else:
+    input_feats = ['GM.obd.spd_veh.value', 'GM.acc.xyz.z']  
+    suff = suff + '_accspeed'
+  
+# Add additional sensors
 steering_sensors = ['GM.obd.strg_pos.value', 'GM.obd.strg_acc.value','GM.obd.strg_ang.value'] 
 wheel_pressure_sensors =  ['GM.obd.whl_prs_rr.value', 'GM.obd.whl_prs_rl.value','GM.obd.whl_prs_fr.value','GM.obd.whl_prs_fl.value'] 
 other_sensors = ['GM.obd.acc_yaw.value','GM.obd.trac_cons.value']
 add_sensors = steering_sensors + wheel_pressure_sensors + other_sensors 
-
 if use_add_sensors:
    input_feats = input_feats + add_sensors
    suff = suff + '_add_sensors'
-else:
-   suff = suff + '_accspeed'
-       
+
+      
+# Predict mode
 if predict_mode:
     input_feats = [var.split('GM.')[1] for var in input_feats] 
-    
-    
+       
 # Route and trip
 if trip and not len(routes)==1 and not predict_mode:
     print('If you pass trip, pass its route.')
