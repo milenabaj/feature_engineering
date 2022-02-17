@@ -764,7 +764,7 @@ def save_hist(aligned, var, route = '', label = '', plot_suff = '', out_dir_plot
 
 
 
-def get_normalized_hist(x, var_name = '', out_dir='.', suff = ''):
+def get_normalized_hist(x, var_name = '', out_dir='.', suff = '', norm = True):
     
     if x.shape[0]==0:
         return
@@ -782,34 +782,40 @@ def get_normalized_hist(x, var_name = '', out_dir='.', suff = ''):
     xmax = xmax + 0.1*xmax
     binrange = [xmin, xmax]  
     
-    dpi  = 300
     
     if 'IRI' in var_name:
         xlabel = 'IRI [m/km]'
         bins = 20
     else:
-        xlabel=''
+        xlabel = var_name
         bins = 20
+    
+    # Plot
+    if norm:
+        sns.histplot(x, binrange=binrange, bins=bins, stat = 'probability', common_norm = True, ax = ax)
+        ax.set_ylabel('Percent [%]')
+        ax.set_xlabel(xlabel)
         
-    sns.histplot(x, binrange=binrange, bins=bins, stat = 'probability', common_norm = True, ax = ax)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel('Percent [%]')
-    
-    # Set yticks to show percent
-    yticks = ax.get_yticks()*100    
-    yticks = ax.get_yticks()
-    yticks = yticks*100
-    yticks = yticks.astype(int) 
-    #ax.yaxis.yaxis.set_major_formatter(plt.matplotlib.ticker.StrMethodFormatter('{x:,.0f}'))
-    ax.set_yticklabels(yticks)
-    
-    # Xticks
-    ml = MultipleLocator(5)
-    ax.xaxis.set_minor_locator(ml)
-    ml2 = MultipleLocator(10)
-    ax.xaxis.set_minor_locator(ml2)
-    
+        # Set yticks to show percent
+        yticks = ax.get_yticks()*100    
+        yticks = ax.get_yticks()
+        yticks = yticks*100
+        yticks = yticks.astype(int) 
+        #ax.yaxis.yaxis.set_major_formatter(plt.matplotlib.ticker.StrMethodFormatter('{x:,.0f}'))
+        ax.set_yticklabels(yticks)
+        
+        # Xticks
+        ml = MultipleLocator(5)
+        ax.xaxis.set_minor_locator(ml)
+        ml2 = MultipleLocator(10)
+        ax.xaxis.set_minor_locator(ml2)
+    else:
+        sns.histplot(x, binrange=binrange, bins=bins, ax = ax)
+        ax.set_ylabel('Count')
+        ax.set_xlabel(xlabel)
+        
     # Figure size
+    dpi  = 300
     xs = 4
     fig.set_size_inches([xs,0.66*xs])
     out_filename = '{0}/normalized_{1}{2}.png'.format(out_dir, var_name, suff)

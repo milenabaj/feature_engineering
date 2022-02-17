@@ -319,8 +319,15 @@ if trainvalid_df is not None:
         print('=== Sensor: {0}, extracted: {1} features'.format(input_sensor,  n_fe_this_sensor))
         fe[input_sensor] =  fe_this_sensor
         
-        # Plot histogram of each extracted feature and correlation with the target
-      
+    #=== Sensor: GM.obd.spd_veh.value, extracted: 35 features
+    #=== Sensor: GM.acc.xyz.z, extracted: 35 features
+    # ['GM.acc.xyz.z-0_Neighbourhood peaks', 'GM.acc.xyz.z-0_Entropy', 'GM.acc.xyz.z-0_Mean absolute diff', 'GM.acc.xyz.z-0_Area under the curve', 'GM.acc.xyz.z-0_ECDF Percentile 0.8', 'GM.acc.xyz.z-0_ECDF Percentile 0.2', 'GM.acc.xyz.z-0_Interquartile range', 'GM.acc.xyz.z-0_Median absolute deviation', 'GM.acc.xyz.z-0_Mean diff', 'GM.acc.xyz.z-0_Zero crossing rate', 'GM.acc.xyz.z-0_Variance', 'GM.acc.xyz.z-0_Root mean square', 'GM.acc.xyz.z-0_Skewness', 'GM.acc.xyz.z-0_Centroid', 'GM.acc.xyz.z-0_Signal distance', 'GM.acc.xyz.z-0_Negative turning points', 'GM.acc.xyz.z-0_Max', 'GM.acc.xyz.z-0_Absolute energy', 'GM.acc.xyz.z-0_Min', 'GM.acc.xyz.z-0_Sum absolute diff', 'GM.acc.xyz.z-0_ECDF Percentile 0.05', 'GM.acc.xyz.z-0_Mean absolute deviation', 'GM.acc.xyz.z-0_Autocorrelation', 'GM.acc.xyz.z-0_Peak to peak distance', 'GM.acc.xyz.z-0_Maxmin diff', 'GM.acc.xyz.z-0_Median', 'GM.acc.xyz.z-0_Positive turning points', 'GM.acc.xyz.z-0_Kurtosis', 'GM.acc.xyz.z-0_ECDF Percentile 0.1', 'GM.acc.xyz.z-0_Slope', 'GM.acc.xyz.z-0_Median absolute diff', 'GM.acc.xyz.z-0_Median diff', 'GM.acc.xyz.z-0_Total energy', 'GM.acc.xyz.z-0_Mean', 'GM.acc.xyz.z-0_Standard deviation']
+    
+    # Plot histogram of each extracted feature and correlation with the target
+    for var in fe_cols:
+        x = trainvalid_df[var]
+        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots, suff = suff, norm = False)
+       
     sys.exit(0)
     # Write info about trainvalid
     # todo
