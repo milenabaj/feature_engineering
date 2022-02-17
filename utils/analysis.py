@@ -192,7 +192,7 @@ def feature_extraction(df, out_dir, keep_cols = [], feats = ['GM.obd.spd_veh.val
             # Extract FE object
             extract_inner_df(df, feats = feats, do_clean_nans=True)    
             df.reset_index(inplace=True, drop = True)
-            #df.to_pickle
+            df.to_pickle(out_filename)
             print('File succesfully loaded.')
                   
     # Compute features 
