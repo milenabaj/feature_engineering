@@ -101,7 +101,7 @@ if mode and mode not in ['trainvalid','trainvalidkfold','trainvalid_test','train
 # None passed
 if not predict_mode and mode not in ['trainvalid','trainvalidkfold','trainvalid_test','trainvalidkfold_test']:
     print('Pass either --predict_mode or set mode to one of trainvalid, trainvalidkfold, trainvalid_test, trainvalidkfold_test')
-    sys.exit(0)
+    sys.exit(0) 
     
 suff = ''        
 if filter_speed:
@@ -124,11 +124,6 @@ add_sensors = steering_sensors + wheel_pressure_sensors + other_sensors
 if use_add_sensors:
    input_feats = input_feats + add_sensors
    suff = suff + '_add_sensors'
-
-      
-# Predict mode
-if predict_mode:
-    input_feats = [var.split('GM.')[1] for var in input_feats] 
        
 # Route and trip
 if trip and not len(routes)==1 and not predict_mode:
@@ -145,7 +140,8 @@ else:
    trips = []
    for route in routes:
        trips  =  trips + route_data[route]['GM_trips']
-  
+
+
 # DRD type  
 if not aran and not p79 and not viafrik:
     print('Set p79 or aran or both to True')
@@ -167,9 +163,6 @@ in_dirs = []
 for route in routes:
     in_dir = '{0}/aligned_GM_{1}_data_window-{2}-step-{3}/{4}'.format(in_dir_base, drd_veh, window_size, step, route) 
     
-    if predict_mode:
-        in_dir = in_dir.replace('aligned','predict_mode')
-            
     if load_add_sensors:
         in_dir = in_dir.replace(route, route+'_add_sensors')
         
@@ -194,15 +187,11 @@ out_dir_plots_fs = '{0}/plots_fs'.format(out_dir)
 if not os.path.exists(out_dir_plots_fs):
     os.makedirs(out_dir_plots_fs)
 
-
-json_feats_file = 'json/selected_features_{0}_route-{0}_GM_trip-{1}_sensors-{2}.json'.format(drd_veh, routes_string, suff)
-# Load json file with sel features
-sel_features = None
-if predict_mode:
-    with open(json_feats_file, "r") as f:
-        sel_features = json.load(f)['features']
-  
- 
+if not predict_mode:
+    json_feats_file = 'json/selected_features_{0}_route-{0}_GM_trip-{1}_sensors-{2}.json'.format(drd_veh, routes_string, suff)  
+else:
+    json_feats_file = None # add file
+    
 print('p79 data? ', p79)
 print('Aran data? ', aran)
 print('Viafrik data? ',viafrik)
@@ -310,8 +299,7 @@ if (trainvalid_df is not None) and (not only_test):
     keep_cols = trainvalid_df.columns.to_list()
     trainvalid_df, fe_filename = feature_extraction(trainvalid_df, keep_cols = keep_cols, feats = input_feats, out_dir = out_dir, 
                                                file_suff = routes_string + suff +'_trainvalid', 
-                                               write_out_file = True, recreate = recreate_fe, sel_features = sel_features, 
-                                               predict_mode = predict_mode)
+                                               write_out_file = True, recreate = recreate_fe, predict_mode = predict_mode)
  
 
     cols = trainvalid_df.columns.to_list()
@@ -349,11 +337,9 @@ if (trainvalid_df is not None) and (not only_test):
     trainvalid_df.reset_index(drop=True, inplace = True)
     
     # Compute target if DI or KPI
-    if target_name=='DI':
+    if target_name=='DI' or 'KPI':
         compute_di_aran(trainvalid_df)
-    if target_name=='KPI':
         compute_kpi_aran(trainvalid_df)
-        
         
     # Select X and target 
     X_trainvalid_fe = trainvalid_df[fe_cols] 
@@ -367,11 +353,14 @@ if (trainvalid_df is not None) and (not only_test):
         print('SFS will be done with train-valid split validation')
         valid_nrows = int(0.2*trainvalid_df.shape[0])
         X_valid_indices = trainvalid_df.iloc[-valid_nrows:].index.tolist()
-     
-
+    
+    out_dir_fs = '{0}/feature_selection'.format(out_dir)
+    if not os.path.exists(out_dir_plots_fs):
+        os.makedirs(out_dir_plots_fs)
+    
     # Do FS
     X_trainvalid_fs, sel_feature_names = find_optimal_subset(X_trainvalid_fe, y_trainvalid, valid_indices = X_valid_indices, reg_model = True, target_name = target_name,
-                                                                 out_dir = out_dir, outfile_suff = 'trainvalid_' + suff, recreate = recreate_fs)
+                                                                 out_dir =  out_dir_fs, outfile_suff = 'trainvalid_' + suff + '_'+target_name, recreate = recreate_fs)
     
     # Write json file
     f =  open(json_feats_file, "w") 
@@ -387,7 +376,7 @@ if (trainvalid_df is not None) and (not only_test):
     for var in fe_cols:
         x = trainvalid_df[var]
         if make_plots:
-            get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'trainvalid_'+suff, norm = False)
+            get_normalized_hist(x, var_name = var, out_dir = out_dir_fs, suff = 'trainvalid_'+suff, norm = False)
        
    
  
@@ -404,7 +393,7 @@ if test_df is not None:
     # Plot test
     for var in vars_to_plot:
         x = test_df[var]
-        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = '_test')
+        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = '_test')
     
     # Write some info
     
@@ -415,8 +404,7 @@ if test_df is not None:
     keep_cols = test_df.columns.to_list()
     test_df, fe_filename = feature_extraction(test_df, keep_cols = keep_cols, feats = input_feats, out_dir = out_dir, 
                                                file_suff = routes_string + suff +'_test', 
-                                               write_out_file = True, recreate = recreate_fe, sel_features = sel_features, 
-                                               predict_mode = predict_mode)
+                                               write_out_file = True, recreate = recreate_fe, predict_mode = predict_mode)
  
 
     cols = test_df.columns.to_list()
@@ -448,17 +436,18 @@ if test_df is not None:
     print('Number of selected features is:{0}'.format(n_sel_features))
     
     # Compute target if DI or KPI
-    if target_name=='DI':
+    if target_name=='DI' or 'KPI':
         compute_di_aran(test_df)
-    if target_name=='KPI':
         compute_kpi_aran(test_df)
         
     # Select target 
     y_test =  test_df[target_name]
     
+    out_dir_fs = out_dir_fs + target_name
+    
     # Do FS (only selection will be done and output create)
     X_test_fs, sel_feature_names = find_optimal_subset(test_df, y_test, reg_model = True, target_name = target_name, sel_features_names =  sel_feature_names,
-                                                                 out_dir = out_dir, outfile_suff = 'test_' + suff, recreate = recreate_fs)
+                                                                 out_dir = out_dir_fs, outfile_suff = 'test_' + suff + '_'+target_name, recreate = recreate_fs)
 
     print('Number of selected features is:{0}'.format(n_sel_features))
     
@@ -466,10 +455,26 @@ if test_df is not None:
     for var in fe_cols:
         x = test_df[var]
         if make_plots:
-            get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'test_'+suff, norm = False)
- 
-
-    
+            get_normalized_hist(x, var_name = var, out_dir = out_dir_fs, suff = 'test_'+suff, norm = False)
+  
+# TOMORROW:
+    # edit paper template
+    # add fs plots: correlations
+    # extract selected features from test
+    # merge branch on git
+    # run everything on KPI and DI and all defects
+    # push package to git
+    # update modelling package
+        
+# FRIDAY:
+    # reruning full trainvalid and test FS on M3 for IRI
+    # running trainvalid FE and FS on M3-M13 for IRI  
+        # -> when done, set recreate_fe to False and run for KPI and DI
+        # -> when done, run for test only on M13_HH for IRI, KPI and DI
+     # -> when done, run for test only on M13_HH for IRI:
+            #python -i get_features2_testonlyHH.py --in_dir /dtu-compute/lira/ml_data/data (will need to rerun with recreate_fe = False for FS only when upper done)
+    # trying GM for CPH1_HH
+     
     
 # TOMORROW:
     # edit paper template
@@ -479,4 +484,5 @@ if test_df is not None:
     # run everything on KPI and DI and all defects
     # push package to git
     # update modelling package
+        
         
