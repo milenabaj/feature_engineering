@@ -195,16 +195,11 @@ out_dir_plots_fs = '{0}/plots_fs'.format(out_dir)
 if not os.path.exists(out_dir_plots_fs):
     os.makedirs(out_dir_plots_fs)
 
-
-json_feats_file = 'json/selected_features_{0}_route-{0}_GM_trip-{1}_sensors-{2}.json'.format(drd_veh, routes_string, suff)
-
-# Load json file with sel features
-sel_features = None
-if predict_mode:
-    with open(json_feats_file, "r") as f:
-        sel_features = json.load(f)['features']
-  
- 
+if not predict_mode:
+    json_feats_file = 'json/selected_features_{0}_route-{0}_GM_trip-{1}_sensors-{2}.json'.format(drd_veh, routes_string, suff)  
+else:
+    json_feats_file = None # add file
+    
 print('p79 data? ', p79)
 print('Aran data? ', aran)
 print('Viafrik data? ',viafrik)
