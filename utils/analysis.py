@@ -171,7 +171,9 @@ def compute_features_per_series(seq, cfg):
 
 
 def extract_col(tsfel_obj, col):
-    if col in list(tsfel_obj.columns):
+    if tsfel_obj==None:
+        t = pd.Series()
+    elif col in list(tsfel_obj.columns):
         t = tsfel_obj[col] 
     else:
         t = pd.Series() # not None!!
