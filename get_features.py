@@ -434,22 +434,6 @@ if test_df is not None:
         if make_plots:
             get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = 'test_'+suff, norm = False)
        
-    # Write info about test
-    # todo
-    
-    # Remove some columns if needed
-    to_rem = []
-    avail_cols = list(test_df.columns)
-    for col in avail_cols:
-        if any(x in col for x in ['ECDF Percentile Count', 'ECDF_']):
-             to_rem.append(col)  
-
-    test_df.drop(to_rem,axis=1,inplace=True)
-    test_df.reset_index(drop=True, inplace = True)
-    
-    # Select X and target 
-    X_test_fe = test_df[fe_cols] 
-    y_test =  test_df[target_name]
         
     # Load selected features
     with open(json_feats_file) as json_file:
