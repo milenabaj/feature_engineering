@@ -168,10 +168,7 @@ if drd_veh.startswith('_'):
 in_dirs = []
 for route in routes:
     in_dir = '{0}/aligned_GM_{1}_data_window-{2}-step-{3}/{4}'.format(in_dir_base, drd_veh, window_size, step, route) 
-    
-    if predict_mode:
-        in_dir = in_dir.replace('aligned','predict_mode')
-            
+          
     if load_add_sensors:
         in_dir = in_dir.replace(route, route+'_add_sensors')
         
