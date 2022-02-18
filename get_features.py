@@ -293,7 +293,7 @@ else:
 
                                     
 # Resample -  FE - FS on trainvalid
-if trainvalid_df is not None and not only test:
+if (trainvalid_df is not None) and (not only test):
     to_lengths_dict = {}
     for feat in input_feats:
         a =  trainvalid_df[feat].apply(lambda seq: seq.shape[0])
