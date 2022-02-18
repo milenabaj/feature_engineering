@@ -88,7 +88,7 @@ p79 = True
 aran = True
 load_add_sensors = True
 recreate_fs = True
-recreate_fe = True
+recreate_fe = False
 #dev_mode = True
 make_plots = True
 only_test = True
@@ -354,6 +354,12 @@ if (trainvalid_df is not None) and (not only_test):
     trainvalid_df.drop(to_rem,axis=1,inplace=True)
     trainvalid_df.reset_index(drop=True, inplace = True)
     
+    # Compute target if DI or KPI
+    if target_name=='DI':
+        compute_di_aran(trainvalid_df)
+    if target_name=='KPI':
+        compute_kpi_aran(trainvalid_df)
+        
     # Select X and target 
     X_trainvalid_fe = trainvalid_df[fe_cols] 
     y_trainvalid =  trainvalid_df[target_name]
@@ -420,6 +426,7 @@ if test_df is not None:
     cols = test_df.columns.to_list()
     fe_cols = list(set(cols).difference(keep_cols))
     
+    # Pring extracted
     fe = {}
     for input_sensor in input_feats:
         print('Exploring extracted features for: {0}'.format(input_sensor))
@@ -444,8 +451,17 @@ if test_df is not None:
     print('Selected features are: {0}'.format(sel_feature_names))
     print('Number of selected features is:{0}'.format(n_sel_features))
     
-    # Do FS (only selection will be done)
-    X_test_fs, sel_feature_names = find_optimal_subset(X_test_fe, y_test, reg_model = True, target_name = target_name, sel_features_names =  sel_feature_names,
+    # Compute target if DI or KPI
+    if target_name=='DI':
+        compute_di_aran(test_df)
+    if target_name=='KPI':
+        compute_kpi_aran(test_df)
+        
+    # Select target 
+    y_test =  test_df[target_name]
+    
+    # Do FS (only selection will be done and output create)
+    X_test_fs, sel_feature_names = find_optimal_subset(test_df, y_test, reg_model = True, target_name = target_name, sel_features_names =  sel_feature_names,
                                                                  out_dir = out_dir, outfile_suff = 'test_' + suff, recreate = recreate_fs)
 
     print('Number of selected features is:{0}'.format(n_sel_features))
@@ -455,96 +471,7 @@ if test_df is not None:
         x = test_df[var]
         if make_plots:
             get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'test_'+suff, norm = False)
-       
   
-
-sys.exit(0)       
-            
-# =====================================================================   #
-# Prepare and split
-# =====================================================================   # 
-print('Starting splitting')
-trips_string = [ str(trip) for trip in trips]
-trips_string = '_'.join(trips_string)
-
-# Get filenames
-filenames = []
-for trip in trips: 
-    filenames = filenames + glob.glob('{0}/*{1}*.pickle'.format(chunks_dir, trip))
- 
-
-# Predict stage
-if predict_mode and sel_features:
-    for filename in filenames:
-        print('Loading: ',filename)
-        key = filename.split('/')[-1]
-        df = pd.read_pickle(filename)
-        
-        # Extract and clean
-        extract_inner_df(df, feats = input_feats, do_clean_nans=True)    
-        
-        sel_features = [feat.split('GM.')[1] for feat in sel_features]
-        df = df[sel_features]
-        
-        filename = '{0}/route-{1}_trips-{2}.pickle'.format(out_dir, route, trips_string)
-        df.to_pickle(filename)
-        print('Saved to: ',filename)
-        
- 
-elif not predict_mode:
-      
-    # Split
-    train_dfs = []
-    valid_dfs = []
-    test_dfs = []
-    
-    for filename in filenames:
-        print('Loading: ',filename)
-        key = filename.split('/')[-1]
-        df = pd.read_pickle(filename)
-        
-        # Extract and clean
-        extract_inner_df(df, feats = input_feats, do_clean_nans=True)    
-            
-        # Train
-        train_n = int(0.6*df.shape[0])
-        valid_n = int(0.2*df.shape[0])
-        train_df = df[0:train_n]
-        train_df.reset_index(inplace=True, drop=True)
-        train_dfs.append(train_df)  
-        
-        # Valid
-        valid_df = df[train_n:train_n+valid_n]
-        valid_df.reset_index(inplace=True, drop=True)
-        valid_dfs.append(valid_df) 
-        
-        # Test
-        test_df = df[train_n+valid_n:]
-        test_df.reset_index(inplace=True, drop=True)
-        test_dfs.append(test_df)
-    
-    
-    train_merged = pd.concat(train_dfs,ignore_index=True)
-    train_merged.reset_index(inplace=True, drop=True)
-    train_filename = '{0}/train_route-{1}_trips-{2}.pickle'.format(out_dir, route, trips_string)
-    train_merged.to_pickle(train_filename)
-    print('Saved to: ',train_filename)
-     
-    
-    valid_merged = pd.concat(valid_dfs,ignore_index=True)
-    valid_merged.reset_index(inplace=True, drop=True)
-    valid_filename = train_filename.replace('train','valid')
-    valid_merged.to_pickle(valid_filename)
-    print('Saved to: ',valid_filename)
-     
-    
-    test_merged = pd.concat(test_dfs,ignore_index=True)   
-    test_merged.reset_index(inplace=True, drop=True)
-    test_filename = train_filename.replace('train','test')
-    test_merged.to_pickle(test_filename)
-    print('Saved to: ',test_filename)
-    
-    
 # TOMORROW:
     # edit paper template
     # add fs plots: correlations
