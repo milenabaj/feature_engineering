@@ -337,9 +337,8 @@ if (trainvalid_df is not None) and (not only_test):
     trainvalid_df.reset_index(drop=True, inplace = True)
     
     # Compute target if DI or KPI
-    if target_name=='DI':
+    if target_name=='DI' or 'KPI':
         compute_di_aran(trainvalid_df)
-    if target_name=='KPI':
         compute_kpi_aran(trainvalid_df)
         
     # Select X and target 
@@ -433,9 +432,8 @@ if test_df is not None:
     print('Number of selected features is:{0}'.format(n_sel_features))
     
     # Compute target if DI or KPI
-    if target_name=='DI':
+    if target_name=='DI' or 'KPI':
         compute_di_aran(test_df)
-    if target_name=='KPI':
         compute_kpi_aran(test_df)
         
     # Select target 
