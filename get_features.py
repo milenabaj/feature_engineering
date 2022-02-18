@@ -354,9 +354,10 @@ if (trainvalid_df is not None) and (not only_test):
         valid_nrows = int(0.2*trainvalid_df.shape[0])
         X_valid_indices = trainvalid_df.iloc[-valid_nrows:].index.tolist()
     
+    #
     out_dir_fs = '{0}/feature_selection'.format(out_dir)
     if not os.path.exists(out_dir_fs):
-        os.makedirs(out_dir_plots_fs)
+        os.makedirs(out_dir_fs)
     
     # Do FS
     X_trainvalid_fs, sel_feature_names = find_optimal_subset(X_trainvalid_fe, y_trainvalid, valid_indices = X_valid_indices, reg_model = True, target_name = target_name,
