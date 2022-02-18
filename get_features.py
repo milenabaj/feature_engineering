@@ -101,12 +101,7 @@ if mode and mode not in ['trainvalid','trainvalidkfold','trainvalid_test','train
 # None passed
 if not predict_mode and mode not in ['trainvalid','trainvalidkfold','trainvalid_test','trainvalidkfold_test']:
     print('Pass either --predict_mode or set mode to one of trainvalid, trainvalidkfold, trainvalid_test, trainvalidkfold_test')
-    sys.exit(0)
- 
-#  Both true
-if predict_mode and mode:
-    print('Do not pass --predict_mode and --mode at the same time. Pass either --predict_mode or set mode to one of trainvalid, trainvalidkfold, trainvalid_test, trainvalidkfold_test.')
-    sys.exit(0)    
+    sys.exit(0) 
     
 suff = ''        
 if filter_speed:
@@ -152,12 +147,6 @@ else:
        trips  =  trips + route_data[route]['GM_trips']
 
 
-# Load json file with sel features
-sel_features = None
-if predict_mode:
-    with open(json_feats_file, "r") as f:
-        sel_features = json.load(f)['features']
-  
 # DRD type  
 if not aran and not p79 and not viafrik:
     print('Set p79 or aran or both to True')
@@ -208,6 +197,13 @@ if not os.path.exists(out_dir_plots_fs):
 
 
 json_feats_file = 'json/selected_features_{0}_route-{0}_GM_trip-{1}_sensors-{2}.json'.format(drd_veh, routes_string, suff)
+
+# Load json file with sel features
+sel_features = None
+if predict_mode:
+    with open(json_feats_file, "r") as f:
+        sel_features = json.load(f)['features']
+  
  
 print('p79 data? ', p79)
 print('Aran data? ', aran)
@@ -481,3 +477,12 @@ if test_df is not None:
     # push package to git
     # update modelling package
         
+# FRIDAY:
+    # reruning full trainvalid and test FS on M3 for IRI
+    # running trainvalid FE and FS on M3-M13 for IRI  
+        # -> when done, set recreate_fe to False and run for KPI and DI
+        # -> when done, run for test only on M13_HH for IRI, KPI and DI
+     # -> when done, run for test only on M13_HH for IRI:
+            #python -i get_features2_testonlyHH.py --in_dir /dtu-compute/lira/ml_data/data (will need to rerun with recreate_fe = False for FS only when upper done)
+    # trying GM for CPH1_HH
+    

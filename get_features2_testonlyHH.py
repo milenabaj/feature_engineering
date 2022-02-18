@@ -148,13 +148,6 @@ else:
    for route in routes:
        trips  =  trips + route_data[route]['GM_trips']
 
-
-# Load json file with sel features
-sel_features = None
-if predict_mode:
-    with open(json_feats_file, "r") as f:
-        sel_features = json.load(f)['features']
-  
 # DRD type  
 if not aran and not p79 and not viafrik:
     print('Set p79 or aran or both to True')
@@ -205,6 +198,13 @@ if not os.path.exists(out_dir_plots_fs):
 
 
 json_feats_file = 'json/selected_features_{0}_route-{0}_GM_trip-{1}_sensors-{2}.json'.format(drd_veh, routes_string, suff)
+
+# Load json file with sel features
+sel_features = None
+if predict_mode:
+    with open(json_feats_file, "r") as f:
+        sel_features = json.load(f)['features']
+  
  
 print('p79 data? ', p79)
 print('Aran data? ', aran)

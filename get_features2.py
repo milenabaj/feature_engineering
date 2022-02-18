@@ -102,11 +102,6 @@ if mode and mode not in ['trainvalid','trainvalidkfold','trainvalid_test','train
 if not predict_mode and mode not in ['trainvalid','trainvalidkfold','trainvalid_test','trainvalidkfold_test']:
     print('Pass either --predict_mode or set mode to one of trainvalid, trainvalidkfold, trainvalid_test, trainvalidkfold_test')
     sys.exit(0)
- 
-#  Both true
-if predict_mode and mode:
-    print('Do not pass --predict_mode and --mode at the same time. Pass either --predict_mode or set mode to one of trainvalid, trainvalidkfold, trainvalid_test, trainvalidkfold_test.')
-    sys.exit(0)    
     
 suff = ''        
 if filter_speed:
@@ -150,13 +145,6 @@ else:
    trips = []
    for route in routes:
        trips  =  trips + route_data[route]['GM_trips']
-
-
-# Load json file with sel features
-sel_features = None
-if predict_mode:
-    with open(json_feats_file, "r") as f:
-        sel_features = json.load(f)['features']
   
 # DRD type  
 if not aran and not p79 and not viafrik:
@@ -208,6 +196,12 @@ if not os.path.exists(out_dir_plots_fs):
 
 
 json_feats_file = 'json/selected_features_{0}_route-{0}_GM_trip-{1}_sensors-{2}.json'.format(drd_veh, routes_string, suff)
+# Load json file with sel features
+sel_features = None
+if predict_mode:
+    with open(json_feats_file, "r") as f:
+        sel_features = json.load(f)['features']
+  
  
 print('p79 data? ', p79)
 print('Aran data? ', aran)
