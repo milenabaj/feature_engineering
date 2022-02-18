@@ -91,7 +91,7 @@ recreate_fs = True
 recreate_fe = True
 #dev_mode = True
 make_plots = True
-#only_test = True
+only_test = False
 #=================================#  
 # Check mode
 if mode and mode not in ['trainvalid','trainvalidkfold','trainvalid_test','trainvalidkfold_test']:
