@@ -340,7 +340,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=100, fmax = None, re
             f=(1,fmax) 
             if valid_indices is not None:
                 valid_subset = PredefinedHoldoutSplit(valid_indices)
-                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, bootstrap = True, min_impurity_decrease=1e-2), 
+                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, bootstrap = True), 
                                                                                n_jobs=-1,
                                                                                k_features=f,
                                                                                forward=True,
@@ -348,7 +348,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=100, fmax = None, re
                                                                                scoring='neg_mean_squared_error',
                                                                                cv = tscv)
             else:
-                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, bootstrap = True, min_impurity_decrease=1e-2), 
+                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, bootstrap = True), 
                                                                                n_jobs=-1,
                                                                                k_features=f,
                                                                                forward=True,
@@ -360,7 +360,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=100, fmax = None, re
             f=(1,fmax)
             if valid_indices is not None:
                 valid_subset = PredefinedHoldoutSplit(valid_indices)
-                feature_selector = SequentialFeatureSelector(RandomForestClassifier(n_trees,class_weight = 'balanced_subsample', max_depth=5, min_impurity_decrease=1e-6),
+                feature_selector = SequentialFeatureSelector(RandomForestClassifier(n_trees,class_weight = 'balanced_subsample', max_depth=5),
                    n_jobs=-1,
                    k_features=f,
                    forward=True,
@@ -368,7 +368,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=100, fmax = None, re
                    scoring=make_scorer(f1_score, average='macro'),
                    cv=valid_subset)
             else:
-                feature_selector = SequentialFeatureSelector(RandomForestClassifier(n_trees,class_weight = 'balanced_subsample', max_depth=5, min_impurity_decrease=1e-6),
+                feature_selector = SequentialFeatureSelector(RandomForestClassifier(n_trees,class_weight = 'balanced_subsample', max_depth=5),
                    n_jobs=-1,
                    k_features=f,
                    forward=True,
@@ -376,7 +376,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=100, fmax = None, re
                    scoring=make_scorer(f1_score, average='macro'),
                    cv=tscv)
         
-            
+        
         features = feature_selector.fit(X,y)
         sel_features_names = list(feature_selector.k_feature_names_)
         print('Selected features ', sel_features_names)

@@ -88,7 +88,10 @@ p79 = True
 aran = True
 load_add_sensors = True
 recreate_fs = True
+recreate_fe = True
 #dev_mode = True
+make_plots = True
+only_test = True
 #=================================#  
 # Check mode
 if mode and mode not in ['trainvalid','trainvalidkfold','trainvalid_test','trainvalidkfold_test']:
@@ -290,7 +293,7 @@ else:
 
                                     
 # Resample -  FE - FS on trainvalid
-if trainvalid_df is not None:
+if trainvalid_df is not None and not only test:
     to_lengths_dict = {}
     for feat in input_feats:
         a =  trainvalid_df[feat].apply(lambda seq: seq.shape[0])
@@ -335,7 +338,8 @@ if trainvalid_df is not None:
     # Plot histogram of each extracted feature and correlation with the target
     for var in fe_cols:
         x = trainvalid_df[var]
-        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = 'trainvalid_'+suff, norm = False)
+        if make_plots:
+            get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = 'trainvalid_'+suff, norm = False)
        
     # Write info about trainvalid
     # todo
@@ -380,28 +384,95 @@ if trainvalid_df is not None:
     # Plot histogram of each selected feature and correlation with the target
     for var in fe_cols:
         x = trainvalid_df[var]
-        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'trainvalid_'+suff, norm = False)
+        if make_plots:
+            get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'trainvalid_'+suff, norm = False)
        
-    sys.exit(0)
-    
-# Plot test
-for var in vars_to_plot:
-    x = test_df[var]
-    get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = '_test')
-       
-# Resample - FS on test        
+   
+ 
+
+##### TEST DF ####
+###################   
 if test_df is not None:
     to_lengths_dict = {}
     for feat in input_feats:
         a =  test_df[feat].apply(lambda seq: seq.shape[0])
         l = int(a.quantile(0.90))
         to_lengths_dict[feat] = l
-        #print(to_lengths_dict)
-        #to_lengths_dict = {'GM.acc.xyz.z': 369, 'GM.obd.spd_veh.value':309} # this was used for motorway
-    test_df, _ = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
+        
+    # Plot test
+    for var in vars_to_plot:
+        x = test_df[var]
+        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = '_test')
     
-    # Do FE for only selected feature
+    # Write some info
+    
+    # Resample
+    test_df, feats_resampled = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
+    
+    # Do feature extraction 
+    keep_cols = test_df.columns.to_list()
+    test_df, fe_filename = feature_extraction(test_df, keep_cols = keep_cols, feats = input_feats, out_dir = out_dir, 
+                                               file_suff = routes_string + suff +'_test', 
+                                               write_out_file = True, recreate = recreate_fe, sel_features = sel_features, 
+                                               predict_mode = predict_mode)
+ 
+
+    cols = test_df.columns.to_list()
+    fe_cols = list(set(cols).difference(keep_cols))
+    
+    fe = {}
+    for input_sensor in input_feats:
+        print('Exploring extracted features for: {0}'.format(input_sensor))
+        fe_this_sensor = [col for col in fe_cols if input_sensor in col]
+        n_fe_this_sensor = len(fe_this_sensor)
+        print('=== Sensor: {0}, extracted: {1} features'.format(input_sensor,  n_fe_this_sensor))
+        fe[input_sensor] =  fe_this_sensor
+         
+    # Plot histogram of each extracted feature and correlation with the target
+    for var in fe_cols:
+        x = test_df[var]
+        if make_plots:
+            get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = 'test_'+suff, norm = False)
        
+    # Write info about test
+    # todo
+    
+    # Remove some columns if needed
+    to_rem = []
+    avail_cols = list(test_df.columns)
+    for col in avail_cols:
+        if any(x in col for x in ['ECDF Percentile Count', 'ECDF_']):
+             to_rem.append(col)  
+
+    test_df.drop(to_rem,axis=1,inplace=True)
+    test_df.reset_index(drop=True, inplace = True)
+    
+    # Select X and target 
+    X_test_fe = test_df[fe_cols] 
+    y_test =  test_df[target_name]
+        
+    # Load selected features
+    with open(json_feats_file) as json_file:
+        data = json.load(json_file)
+    sel_feature_names = data["features"]
+    n_sel_features = len(sel_feature_names)
+        
+    print('Selected features are: {0}'.format(sel_feature_names))
+    print('Number of selected features is:{0}'.format(n_sel_features))
+    
+    # Do FS (only selection will be done)
+    X_test_fs, sel_feature_names = find_optimal_subset(X_test_fe, y_test, reg_model = True, target_name = target_name, sel_features_names =  sel_feature_names,
+                                                                 out_dir = out_dir, outfile_suff = 'test_' + suff, recreate = recreate_fs)
+
+    print('Number of selected features is:{0}'.format(n_sel_features))
+    
+    # Plot histogram of each selected feature and correlation with the target
+    for var in fe_cols:
+        x = test_df[var]
+        if make_plots:
+            get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'test_'+suff, norm = False)
+       
+  
 
 sys.exit(0)       
             
