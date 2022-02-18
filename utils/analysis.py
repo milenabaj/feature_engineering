@@ -458,10 +458,15 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=100, fmax = None, re
 def compute_di_aran(data):
     print('Computing DI')
     
+    defects = ["AlligCracksSmall","AlligCracksMed","AlligCracksLarge","CracksLongitudinalSmall","CracksLongitudinalMed","CracksLongitudinalLarge","CracksLongitudinalSealed","CracksTransverseSmall","CracksTransverseMed","CracksTransverseLarge","CracksTransverseSealed","PotholeAreaAffectedLow","PotholeAreaAffectedMed","PotholeAreaAffectedHigh","PotholeAreaAffectedDelam"]
+    
+    for defect in defects:
+        if defect not in data.columns:
+            data[defect] = 0
+            
     # DI
     data['DI'] = (data["AlligCracksSmall"]*3+data["AlligCracksMed"]*4+data["AlligCracksLarge"]*5)**0.3 + (data["CracksLongitudinalSmall"]**2+data["CracksLongitudinalMed"]**3+data["CracksLongitudinalLarge"]**4+data["CracksLongitudinalSealed"]**2+data["CracksTransverseSmall"]*3+data["CracksTransverseMed"]*4+data["CracksTransverseLarge"]*5+data["CracksTransverseSealed"]*2)**0.1 + (data["PotholeAreaAffectedLow"]*5+data["PotholeAreaAffectedMed"]*7+data["PotholeAreaAffectedHigh"]*10+data["PotholeAreaAffectedDelam"]*5)**0.1
 
-    # DI reduced
     data['DI_red'] = (data["AlligCracksMed"]*4+data["AlligCracksLarge"]*5)**0.3 + (data["CracksTransverseMed"]*4+data["CracksTransverseLarge"]*5)**0.1 + (data["PotholeAreaAffectedMed"]*7+data["PotholeAreaAffectedHigh"]*10)**0.1
    
     return 
