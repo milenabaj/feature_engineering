@@ -259,8 +259,13 @@ def extract_inner_df(df, feats = ['GM.obd.spd_veh.value','GM.acc.xyz.x', 'GM.acc
            continue
         
        # Get feature names for this var
-       #try:
-       col_names = df[var_tsfel].iloc[0].columns
+       col_names = None
+       for row in range(0,df.shape[0]):
+           t = df[var_tsfel].iloc[row]
+           if t is not None:
+               col_names = t.columns
+               break
+       
        print('Will extract: {0}\n'.format(col_names.to_list()))
        time.sleep(2)
        #except:
