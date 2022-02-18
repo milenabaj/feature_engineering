@@ -355,7 +355,7 @@ if (trainvalid_df is not None) and (not only_test):
         X_valid_indices = trainvalid_df.iloc[-valid_nrows:].index.tolist()
     
     out_dir_fs = '{0}/feature_selection'.format(out_dir)
-    if not os.path.exists(out_dir_plots_fs):
+    if not os.path.exists(out_dir_fs):
         os.makedirs(out_dir_plots_fs)
     
     # Do FS
