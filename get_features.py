@@ -124,11 +124,6 @@ add_sensors = steering_sensors + wheel_pressure_sensors + other_sensors
 if use_add_sensors:
    input_feats = input_feats + add_sensors
    suff = suff + '_add_sensors'
-
-      
-# Predict mode
-if predict_mode:
-    input_feats = [var.split('GM.')[1] for var in input_feats] 
        
 # Route and trip
 if trip and not len(routes)==1 and not predict_mode:
