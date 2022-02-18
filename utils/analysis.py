@@ -346,7 +346,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=100, fmax = None, re
                                                                                forward=True,
                                                                                verbose=2,
                                                                                scoring='neg_mean_squared_error',
-                                                                               cv = tscv)
+                                                                               cv = valid_subset)
             else:
                 feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, bootstrap = True), 
                                                                                n_jobs=-1,
