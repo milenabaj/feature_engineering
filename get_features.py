@@ -299,8 +299,7 @@ if (trainvalid_df is not None) and (not only_test):
     keep_cols = trainvalid_df.columns.to_list()
     trainvalid_df, fe_filename = feature_extraction(trainvalid_df, keep_cols = keep_cols, feats = input_feats, out_dir = out_dir, 
                                                file_suff = routes_string + suff +'_trainvalid', 
-                                               write_out_file = True, recreate = recreate_fe, sel_features = sel_features, 
-                                               predict_mode = predict_mode)
+                                               write_out_file = True, recreate = recreate_fe, predict_mode = predict_mode)
  
 
     cols = trainvalid_df.columns.to_list()
@@ -402,8 +401,7 @@ if test_df is not None:
     keep_cols = test_df.columns.to_list()
     test_df, fe_filename = feature_extraction(test_df, keep_cols = keep_cols, feats = input_feats, out_dir = out_dir, 
                                                file_suff = routes_string + suff +'_test', 
-                                               write_out_file = True, recreate = recreate_fe, sel_features = sel_features, 
-                                               predict_mode = predict_mode)
+                                               write_out_file = True, recreate = recreate_fe, predict_mode = predict_mode)
  
 
     cols = test_df.columns.to_list()
