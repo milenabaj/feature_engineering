@@ -41,22 +41,22 @@ def sort2(f):
     try:
         num = int(f.split('/')[-1].split('_')[4] )
     except:
-        if '_fulltrip.png' in f:
+        if '_fulltrip.eps' in f:
             num = -10
-        elif '_clusters.png' in f:
+        elif '_clusters.eps' in f:
             num = -9
-        elif '_removed_outliers.png' in f:
+        elif '_removed_outliers.eps' in f:
             num = -8
-        elif '_fulltrip_minima.png' in f:
+        elif '_fulltrip_minima.eps' in f:
             num = -7
         else:
             num = -1
     return num
 
 def sort3(f):
-    if 'mapmatched_map_printout.png' in f:
+    if 'mapmatched_map_printout.eps' in f:
         num = -10
-    elif'interpolated_300th_map_printout.png' in f:
+    elif'interpolated_300th_map_printout.eps' in f:
         num = -9
     else:
         num = -1
@@ -112,8 +112,8 @@ def plot_fs(nf, res, var_label = 'MSE',title='', size=2,
       if save_plot:
           out_file_path = filename
           plt.savefig(out_file_path, dpi=dpi, bbox_inches = "tight")
-          plt.savefig(out_file_path.replace('.png','.eps'),format='eps',dpi=dpi, bbox_inches = "tight")
-          plt.savefig(out_file_path.replace('.png','.pdf'),dpi=dpi, bbox_inches = "tight")
+          plt.savefig(out_file_path.replace('.eps','.eps'),format='eps',dpi=dpi, bbox_inches = "tight")
+          plt.savefig(out_file_path.replace('.eps','.pdf'),dpi=dpi, bbox_inches = "tight")
           print('file saved as: ',out_file_path)
           
       return
@@ -388,7 +388,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=100, fmax = None, re
         
         # Plot
         fig1 = plot_sfs(feature_selector.get_metric_dict(), kind='std_dev', figsize=(25,20))
-        plot_name = x_filename.replace('.pickle','.png')
+        plot_name = x_filename.replace('.pickle','.eps')
         if save_output:
             plt.savefig(plot_name)
         #print(feature_selector_backward.asubsets_)
@@ -741,13 +741,13 @@ def get_classification_predictions(X_trainvalid, y_trainvalid, X_test, y_test, r
     # Save
     if save_plots:
           dpi=1000
-          out_file_path = '{0}/{1}_test.png'.format(out_dir, model_title.replace(' ','_'))
+          out_file_path = '{0}/{1}_test.eps'.format(out_dir, model_title.replace(' ','_'))
           if is_pca:
-              out_file_path = out_file_path.replace('_test.png','_pca_test.png')
+              out_file_path = out_file_path.replace('_test.eps','_pca_test.eps')
                   
           plt.savefig(out_file_path, dpi=dpi, bbox_inches = "tight")
-          plt.savefig(out_file_path.replace('.png','.eps'),format='eps',dpi=dpi, bbox_inches = "tight")
-          plt.savefig(out_file_path.replace('.png','.pdf'),dpi=dpi, bbox_inches = "tight")
+          plt.savefig(out_file_path.replace('.eps','.eps'),format='eps',dpi=dpi, bbox_inches = "tight")
+          plt.savefig(out_file_path.replace('.eps','.pdf'),dpi=dpi, bbox_inches = "tight")
           print('file saved as: ',out_file_path)
       
     # Print

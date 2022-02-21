@@ -377,7 +377,7 @@ if (trainvalid_df is not None) and (not only_test):
     for var in fe_cols:
         x = trainvalid_df[var]
         if make_plots:
-            get_normalized_hist(x, var_name = var, out_dir = out_dir_fs, suff = 'trainvalid_'+suff, norm = False)
+            get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'trainvalid_'+suff+target_name, norm = False)
        
    
  

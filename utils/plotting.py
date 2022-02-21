@@ -46,14 +46,14 @@ def plot_geolocation(longitudes, latitudes, name = 'map', out_dir = '.', plot_fi
     """        
     # Name
     if full_filename:
-        name = full_filename.replace('.pickle','.png')
+        name = full_filename.replace('.pickle','.eps')
     else:
-        name = '{0}/{1}_map.png'.format(out_dir, name)
+        name = '{0}/{1}_map.eps'.format(out_dir, name)
     
     
     # Matplotlib figure
     if os.path.exists(name) and preload:
-        pickle_name = name.replace('.png','.pickle')
+        pickle_name = name.replace('.eps','.pickle')
         print('Loading ',pickle_name)
         with open(pickle_name,'rb') as f:
             fig = pickle.load(f)
@@ -86,7 +86,7 @@ def plot_geolocation(longitudes, latitudes, name = 'map', out_dir = '.', plot_fi
         print('Figure saved: {0}'.format(name)) 
               
         # Save also as pickle
-        fig_name = name.replace('.png','.pickle')
+        fig_name = name.replace('.eps','.pickle')
         with open(fig_name,'wb') as f:
             pickle.dump(fig, f)  
         
@@ -97,7 +97,7 @@ def plot_geolocation(longitudes, latitudes, name = 'map', out_dir = '.', plot_fi
             from selenium_firefox import Firefox
             
             print('Will try to open web browser')
-            html_name = name.replace('.png','.html')
+            html_name = name.replace('.eps','.html')
             
             # Html can't plot with legend
             if fig.axes[0].get_legend():
@@ -110,7 +110,7 @@ def plot_geolocation(longitudes, latitudes, name = 'map', out_dir = '.', plot_fi
              
             # Save pdf printout of the webpage
             html_link = 'file://{0}/{1}'.format(os.getcwd(),html_name)
-            printout_name = name.replace('.png','_printout.png')
+            printout_name = name.replace('.eps','_printout.eps')
             #print(html_link)
             
             browser = Firefox()
@@ -318,7 +318,7 @@ def plot_DRD_lasers(data, laser_type='Prof'):
     plt.show()
     return
 
-def scatter_plots(data, var = 'GM_Acceleration_z_segment', targets = ['DRD_IRI5', 'DRD_IRI21','DRD_IRI_mean'],path='plot.png'):
+def scatter_plots(data, var = 'GM_Acceleration_z_segment', targets = ['DRD_IRI5', 'DRD_IRI21','DRD_IRI_mean'],path='plot.eps'):
     features = [c for c in data.columns if var+'_' in c]
     for target in targets:
         for feature in features:
@@ -625,10 +625,10 @@ def plot_regression_true_vs_pred(true, pred, var_label = 'IRI (m/km)',title='', 
         plt.tight_layout()
         
         if save_plot:
-            out_file_path = '{0}/{1}.png'.format(out_dir, filename)
+            out_file_path = '{0}/{1}.eps'.format(out_dir, filename)
             plt.savefig(out_file_path, dpi=dpi, bbox_inches = "tight")
-            plt.savefig(out_file_path.replace('.png','.eps'),format='eps',dpi=dpi, bbox_inches = "tight")
-            plt.savefig(out_file_path.replace('.png','.pdf'),dpi=dpi, bbox_inches = "tight")
+            plt.savefig(out_file_path.replace('.eps','.eps'),format='eps',dpi=dpi, bbox_inches = "tight")
+            plt.savefig(out_file_path.replace('.eps','.pdf'),dpi=dpi, bbox_inches = "tight")
             print('file saved as: ',out_file_path)
             
         return
@@ -677,8 +677,8 @@ def plot_fs(nf, res, var_label = 'MSE',title='', size=2,
       if save_plot:
           out_file_path = '{0}/{1}'.format(out_dir, filename)
           plt.savefig(out_file_path, dpi=dpi, bbox_inches = "tight")
-          plt.savefig(out_file_path.replace('.png','.eps'),format='eps',dpi=dpi, bbox_inches = "tight")
-          plt.savefig(out_file_path.replace('.png','.pdf'),dpi=dpi, bbox_inches = "tight")
+          plt.savefig(out_file_path.replace('.eps','.eps'),format='eps',dpi=dpi, bbox_inches = "tight")
+          plt.savefig(out_file_path.replace('.eps','.pdf'),dpi=dpi, bbox_inches = "tight")
           print('file saved as: ',out_file_path)
           
       return
@@ -692,7 +692,7 @@ def format_col(x):
     
 
 
-def plot_feature_importance(importance, names, save_plot = True, out_dir = '.', filename='fs_ranking.png',plot_type=''):
+def plot_feature_importance(importance, names, save_plot = True, out_dir = '.', filename='fs_ranking.eps',plot_type=''):
 
     figsize=[7,5]
     dpi=1000
@@ -740,8 +740,8 @@ def plot_feature_importance(importance, names, save_plot = True, out_dir = '.', 
     if save_plot:
           out_file_path = '{0}/{1}'.format(out_dir, filename)
           plt.savefig(out_file_path, dpi=dpi, bbox_inches = "tight")
-          plt.savefig(out_file_path.replace('.png','.eps'),format='eps',dpi=dpi, bbox_inches = "tight")
-          plt.savefig(out_file_path.replace('.png','.pdf'),dpi=dpi, bbox_inches = "tight")
+          plt.savefig(out_file_path.replace('.eps','.eps'),format='eps',dpi=dpi, bbox_inches = "tight")
+          plt.savefig(out_file_path.replace('.eps','.pdf'),dpi=dpi, bbox_inches = "tight")
           print('file saved as: ',out_file_path)
 
     return
@@ -757,7 +757,7 @@ def save_hist(aligned, var, route = '', label = '', plot_suff = '', out_dir_plot
               verticalalignment="center",
               transform = axis.transAxes)
     if out_dir_plots:
-        plot_name = '{0}/{1}_{2}.png'.format(out_dir_plots, plot_suff, var)
+        plot_name = '{0}/{1}_{2}.eps'.format(out_dir_plots, plot_suff, var)
         fig.savefig(plot_name)
         print('Wrote {0}'.format(plot_name))
     return fig
@@ -820,7 +820,8 @@ def get_normalized_hist(x, var_name = '', out_dir='.', suff = '', norm = True):
     fig.set_size_inches([xs,0.66*xs])
     out_filename = '{0}/normalized_{1}{2}.eps'.format(out_dir, var_name, suff)
     fig.savefig(out_filename,bbox_inches='tight', dpi = dpi)   
-    with open(out_filename.replace('.eps','.pickle'), 'wb') as handle:
+    pickle_out_filename = out_filename.replace('.eps','.pickle')
+    with open(pickle_out_filename, 'wb') as handle:
         pickle.dump(fig, handle, protocol=pickle.HIGHEST_PROTOCOL)
     print('Saved: ',out_filename)    
 
