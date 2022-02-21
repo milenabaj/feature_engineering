@@ -443,8 +443,7 @@ if test_df is not None:
         
     # Select target 
     y_test =  test_df[target_name]
-    
-    out_dir_fs = out_dir_fs + target_name
+
     
     # Do FS (only selection will be done and output create)
     X_test_fs, sel_feature_names = find_optimal_subset(test_df, y_test, reg_model = True, target_name = target_name, sel_features_names =  sel_feature_names,
@@ -456,7 +455,7 @@ if test_df is not None:
     for var in fe_cols:
         x = test_df[var]
         if make_plots:
-            get_normalized_hist(x, var_name = var, out_dir = out_dir_fs, suff = 'test_'+suff, norm = False)
+            get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'test_'+suff, norm = False)
   
 # TOMORROW:
     # edit paper template
