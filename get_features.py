@@ -87,7 +87,7 @@ routes = ['M3_VH','M3_HH']
 p79 = True
 aran = True
 load_add_sensors = True
-recreate_fs = True
+#recreate_fs = True
 recreate_fe = False
 #dev_mode = True
 make_plots = True
@@ -183,10 +183,15 @@ out_dir_plots_fe = '{0}/plots_fe'.format(out_dir)
 if not os.path.exists(out_dir_plots_fe):
     os.makedirs(out_dir_plots_fe)
 
-out_dir_plots_fs = '{0}/plots_fs'.format(out_dir)
+
+out_dir_fs = '{0}/feature_selection_{1}'.format(out_dir, target_name)
+if not os.path.exists(out_dir_fs):
+    os.makedirs(out_dir_fs)
+    
+out_dir_plots_fs = '{0}/plots_fs'.format(out_dir_fs)
 if not os.path.exists(out_dir_plots_fs):
     os.makedirs(out_dir_plots_fs)
-
+    
 if not predict_mode:
     json_feats_file = 'json/selected_features_{0}_route-{0}_GM_trip-{1}_sensors-{2}.json'.format(drd_veh, routes_string, suff)  
 else:
@@ -288,7 +293,7 @@ if (trainvalid_df is not None) and (not only_test):
     # Plot trainvalid
     for var in vars_to_plot:
         x = trainvalid_df[var]
-        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = '_trainvalid')
+        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = '_trainvalid')
     
     # Write some info
     
@@ -322,7 +327,8 @@ if (trainvalid_df is not None) and (not only_test):
         x = trainvalid_df[var]
         if make_plots:
             get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = 'trainvalid_'+suff, norm = False)
-       
+            # add correlation plots
+            
     # Write info about trainvalid
     # todo
     
@@ -354,11 +360,6 @@ if (trainvalid_df is not None) and (not only_test):
         valid_nrows = int(0.2*trainvalid_df.shape[0])
         X_valid_indices = trainvalid_df.iloc[-valid_nrows:].index.tolist()
     
-    #
-    out_dir_fs = '{0}/feature_selection_{1}'.format(out_dir, target_name)
-    if not os.path.exists(out_dir_fs):
-        os.makedirs(out_dir_fs)
-    
     # Do FS
     X_trainvalid_fs, sel_feature_names = find_optimal_subset(X_trainvalid_fe, y_trainvalid, valid_indices = X_valid_indices, reg_model = True, target_name = target_name,
                                                                  out_dir =  out_dir_fs, outfile_suff = 'trainvalid_' + suff + '_'+target_name, recreate = recreate_fs)
@@ -378,7 +379,7 @@ if (trainvalid_df is not None) and (not only_test):
         x = trainvalid_df[var]
         if make_plots:
             get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'trainvalid_'+suff+target_name, norm = False)
-       
+            # add correlation plots
    
  
 
@@ -425,7 +426,7 @@ if test_df is not None:
         x = test_df[var]
         if make_plots:
             get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = 'test_'+suff, norm = False)
-       
+            # add correlations
         
     # Load selected features
     with open(json_feats_file) as json_file:
@@ -456,6 +457,7 @@ if test_df is not None:
         x = test_df[var]
         if make_plots:
             get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'test_'+suff, norm = False)
+            # add correlations
   
 # TOMORROW:
     # edit paper template
