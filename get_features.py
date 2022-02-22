@@ -87,9 +87,8 @@ routes = ['M3_VH','M3_HH']
 p79 = True
 aran = True
 load_add_sensors = True
-#recreate_fs = True
+recreate_fs = True
 recreate_fe = False
-#dev_mode = True
 make_plots = True
 only_test = False
 #=================================#  
@@ -380,6 +379,7 @@ if (trainvalid_df is not None) and (not only_test):
         if make_plots:
             get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'trainvalid_'+suff+target_name, norm = False)
             # add correlation plots
+            plot_correlation(trainvalid_df, method = 'pearson', out_dir = out_dir_plots_fs, suff = 'trainvalid_'+suff+target_name)
    
  
 
@@ -458,6 +458,8 @@ if test_df is not None:
         if make_plots:
             get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'test_'+suff, norm = False)
             # add correlations
+            plot_correlation(test_df, method = 'pearson', out_dir = out_dir_plots_fs, suff = 'test_'+suff+target_name)
+   
   
 # TOMORROW:
     # edit paper template

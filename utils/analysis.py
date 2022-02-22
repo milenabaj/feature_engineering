@@ -37,40 +37,7 @@ from sklearn.pipeline import Pipeline
 from scipy.signal import find_peaks, argrelmin, argrelextrema, find_peaks_cwt
 from mlxtend.evaluate import PredefinedHoldoutSplit
 
-def sort2(f):
-    try:
-        num = int(f.split('/')[-1].split('_')[4] )
-    except:
-        if '_fulltrip.eps' in f:
-            num = -10
-        elif '_clusters.eps' in f:
-            num = -9
-        elif '_removed_outliers.eps' in f:
-            num = -8
-        elif '_fulltrip_minima.eps' in f:
-            num = -7
-        else:
-            num = -1
-    return num
-
-def sort3(f):
-    if 'mapmatched_map_printout.eps' in f:
-        num = -10
-    elif'interpolated_300th_map_printout.eps' in f:
-        num = -9
-    else:
-        num = -1
-    return num
-
-def polynomial_model(degree=10):
-    polynomial_features = PolynomialFeatures(degree=degree,
-                                             include_bias=False)
-    linear_regression = LinearRegression(normalize=True)  #normalize=True normalize data
-    pipeline = Pipeline([("polynomial_features", polynomial_features),#Add polynomial features
-                         ("linear_regression", linear_regression)])
-    return pipeline
-    
-    
+  
 def plot_fs(nf, res, var_label = 'MSE',title='', size=2,
                                out_dir = '.', save_plot=True, filename='plot-fs'):        
       if size==2:
@@ -300,7 +267,7 @@ def extract_inner_df(df, feats = ['GM.obd.spd_veh.value','GM.acc.xyz.x', 'GM.acc
     return
 
     
-def find_optimal_subset(X, y, valid_indices = None, n_trees=100, fmax = None, reg_model = True, bins = None, target_name = 'target', sel_features_names = None,
+def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, reg_model = True, bins = None, target_name = 'target', sel_features_names = None,
                         out_dir = '.', outfile_suff = 'feature_selection', recreate = False,  save_output = True):
         
   
@@ -359,7 +326,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=100, fmax = None, re
                                                                                forward=True,
                                                                                verbose=2,
                                                                                scoring='neg_mean_squared_error',
-                                                                               cv=tscv)
+                                                                               cv=5)
              
         else:
             f=(1,fmax)
@@ -695,181 +662,3 @@ def grid_search(rf, parameters, X, y, score, n_splits = 5):
     return clf, rf
 
 
-
-def get_classification_predictions(X_trainvalid, y_trainvalid, X_test, y_test, rf, 
-                                   test_results = None, model_title='', row = 0, labels = None,
-                                   save_plots = True, out_dir = '.', is_pca = False):
-     
-    labels_train = [l for l in labels if int(l) in y_trainvalid.unique()]    
-    labels_test = [l for l in labels if int(l) in y_test.unique()]
-    labels_plot = ['Low', 'Medium', 'High']
-    
-    # Train results     
-    y_trainvalid_pred = rf.predict(X_trainvalid)         
-    train_report = classification_report(y_trainvalid,  y_trainvalid_pred, labels=labels_train)
-    train_cm = confusion_matrix(y_trainvalid,y_trainvalid_pred, labels=labels_train)
-    #plot_confusion_matrix(rf, X_trainvalid, y_true = y_trainvalid, labels=labels)
-    #plt.title('Train')
-
-    # Test results
-    y_test_pred = rf.predict(X_test)
-    test_report = classification_report(y_test,  y_test_pred, labels=labels_test)
-    test_cm = confusion_matrix(y_test,y_test_pred, labels=labels_test)
-    
-    plt.rcParams.update({'font.size': 19})
-    plot_confusion_matrix(rf, X_test, y_true = y_test,labels=labels_test,display_labels=labels_plot, colorbar = False) 
-    #ax=plt.gca()
-    #ax.set_xticklabels(labels)
-    #ax.set_yticklabels(labels)
-    
-    #if is_pca:
-    #    plt.title(model_title + ' (PCA)')
-    #else:
-    #    plt.title(model_title 
-    
-    # Compute average metrics over all classes
-    test_report_dict = classification_report(y_test,  y_test_pred, labels=labels_test, output_dict=True)
-    test_report_dict = { str(label): test_report_dict[str(label)] for label in labels_test}
-    test_report_df = pd.DataFrame(test_report_dict)
-
-    # Compute average metrics over all classes and update results with all models
-    test_results.at[row, 'Model'] = model_title
-    test_results.at[row, 'Precision'] = test_report_df.loc['precision',:].mean()
-    test_results.at[row, 'Recall'] = test_report_df.loc['recall',:].mean()
-    test_results.at[row, 'F1-Score'] =  test_report_df.loc['f1-score',:].mean()
-    
-    # Save
-    if save_plots:
-          dpi=1000
-          out_file_path = '{0}/{1}_test.eps'.format(out_dir, model_title.replace(' ','_'))
-          if is_pca:
-              out_file_path = out_file_path.replace('_test.eps','_pca_test.eps')
-                  
-          plt.savefig(out_file_path, dpi=dpi, bbox_inches = "tight")
-          plt.savefig(out_file_path.replace('.eps','.eps'),format='eps',dpi=dpi, bbox_inches = "tight")
-          plt.savefig(out_file_path.replace('.eps','.pdf'),dpi=dpi, bbox_inches = "tight")
-          print('file saved as: ',out_file_path)
-      
-    # Print
-    print('=== Train ====')
-    print(train_report)
-    print('=== Test ====')
-    print(test_report)
-    
-    return train_report, test_report
-    
-def get_regression_predictions(X_trainvalid, y_trainvalid, X_test, y_test, rf, train_results = None, test_results = None, model_title='', row = 0, labels = None):
-
-    # Predict
-    y_trainvalid_pred = rf.predict(X_trainvalid)
-    y_test_pred = rf.predict(X_test)
-    
-    # MSE: train
-    rmse_train = np.sqrt(mean_squared_error(y_true =  y_trainvalid, y_pred = y_trainvalid_pred))
-    mae_train = mean_absolute_error(y_true =  y_trainvalid, y_pred = y_trainvalid_pred)
-    mape_train = mean_absolute_percentage_error(y_true =  y_trainvalid, y_pred = y_trainvalid_pred)
-    r2_train = r2_score(y_true =  y_trainvalid, y_pred = y_trainvalid_pred)
-    print('\nMODEL: \n',model_title)
-    print('==== Train error: ==== ')
-    print('MRSE: ', rmse_train)
-    print('MAE: ', mae_train)
-    print('R2: ', r2_train)
-    print('MRE: ',mape_train)
-    print('====================== \n')
-
-    # MSE: test
-    rmse_test = np.sqrt(mean_squared_error(y_true =  y_test, y_pred = y_test_pred))
-    mae_test = mean_absolute_error(y_true =  y_test, y_pred = y_test_pred)
-    r2_test = r2_score(y_true =  y_test, y_pred = y_test_pred)
-    mape_test = mean_absolute_percentage_error(y_true =  y_test, y_pred = y_test_pred)
-    print('==== Test error: ==== ')
-    print('RMSE: ', rmse_test)
-    print('MAE: ', mae_test)
-    print('R2: ', r2_test)
-    print('MRE: ',mape_test)
-    print('====================== \n')   
-
-    # Update results
-    train_results.at[row, 'Model'] = model_title
-    train_results.at[row, 'R2'] = r2_train
-    train_results.at[row, 'MAE'] = mae_train
-    train_results.at[row, 'RMSE'] = rmse_train
-    train_results.at[row, 'MRE'] = mape_train
-    
-    # Update results
-    test_results.at[row, 'Model'] = model_title
-    test_results.at[row, 'R2'] = r2_test
-    test_results.at[row, 'MAE'] = mae_test
-    test_results.at[row, 'RMSE'] = rmse_test
-    test_results.at[row, 'MRE'] = mape_test
-    
-    
-    
-    return y_trainvalid_pred,  y_test_pred
-    
-def get_classification_model(model, f_maxsel, random_state = None, is_pca= False):
-    
-    model_title = model.replace('_',' ').title()
-    nt = 500
-    
-    # Define models
-    if model=='dummy':
-        rf =  DummyClassifier(strategy='most_frequent')
-        parameters = {}
-    if model=='logistic_regresion':
-        #rf = linear_model.LogisticRegression(class_weight = 'balanced')
-        rf = linear_model.LogisticRegression(random_state=random_state)
-        C = np.linspace(0,20,5)
-        #C = np.arange(0,10,2)
-        parameters = {'C':C}
-    if model=='naive_bayes':
-        rf = GaussianNB()
-        parameters = {}  
-    if model=='kNN':
-        rf = KNeighborsClassifier()
-        k = np.arange(1,41,step=1) 
-        #n = np.arange(0,10,2)
-        parameters = {'n_neighbors':k}
-    if model=='random_forest':
-        #rf = RandomForestClassifier(nt, class_weight = 'balanced_subsample')
-        rf = RandomForestClassifier(nt, random_state=random_state)
-        depths = np.arange(5,10,1)
-        n_estimators = np.arange(300,500,100)
-        fs =  np.arange(6,16,2)
-        parameters = {'n_estimators': n_estimators, 'max_depth':depths, 'max_features':fs}
-    elif model=='SVC_rbf':
-        model_title = 'SVC'
-        rf = SVC(class_weight='balanced', kernel ='rbf', random_state=random_state)
-        #C = np.linspace(0,20,5)
-        #C = np.append(C,[1])
-        #C.sort()
-        #gamma = np.logspace(-4,-2,3)
-        C = np.array([1,5])
-        gamma = np.array([0.001])
-        n = C.shape[0]*gamma.shape[0]
-        print(n)
-        parameters = {'C':C, 'gamma':gamma}
-    elif model=='ANN':
-        model_title = 'ANN'
-        
-        ann_alpha = np.array([1,5,10,12])
-        
-        rs = [0]
-        
-        hs1 = [(4),(8),(12),(16)]
-        hs2 = [(8,4),(12,4),(4,8)]
-        hs3 = [(4,6,8),(4,8,16)]
-        hs4 = [(2,4,8,12),(12,8,6,2)]
-        hs5 = [(2,4,6,8,12),(12,8,6,4,2)]
-        #hs = hs1+hs2+hs3+hs4+hs5
-        hs = hs1
-        #hs = [(4,6,8)]
-        #learning_rate_init = np.logspace(-5,0,6)
-        learning_rate_init = np.array([0.01,0.1])
-        acct = ['identity', 'relu']
-        rf = MLPClassifier(max_iter=1000)
-        parameters = {'hidden_layer_sizes':hs, 'alpha':ann_alpha, 'learning_rate_init':learning_rate_init, 'random_state':rs, 'activation':acct}
-        #parameters = {'hidden_layer_sizes':hs} 
-        #print(parameters)
-        
-    return rf, parameters, model_title
