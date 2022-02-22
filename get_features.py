@@ -25,7 +25,7 @@ import gc, os, sys, glob
 # Script arguments
 parser = argparse.ArgumentParser(description='Please provide command line arguments.')
 
-parser.add_argument('--route', '--list', nargs='+', help='Process all trips on those routes, which are found in json file.')
+parser.add_argument('--route', nargs='+', help='Process all trips on those routes, which are found in json file.')
 parser.add_argument('--trip', type = int, help='Process this trip only.')
 
 # Vehicle type to align with GM: you can pass multiple
@@ -52,7 +52,10 @@ parser.add_argument('--no_filter_speed', action="store_true", help = 'Do not fil
     
 # Parse arguments
 args = parser.parse_args()
-routes = args.route
+if args.route:
+    routes = args.route
+else:
+    routes = ['M3_VH','M3_HH']
 trip  = args.trip
 
 # Vehicle
@@ -82,13 +85,6 @@ dev_mode = args.dev_mode
 dev_nrows = 2
 
 
-# TEMP
-routes = ['M3_VH','M3_HH']
-p79 = True
-aran = True
-load_add_sensors = True
-recreate_fs = True
-recreate_fe = False
 make_plots = True
 only_test = False
 #=================================#  
