@@ -3,7 +3,7 @@ This package does feature extraction and selection.
 python -i get_features.py --in_dir /dtu-compute/lira/ml_data/data --target IRI_mean --load_add_sensors --p79 --aran  
 As a target, choose: IRI_mean, KPI or DI.
 
-* To recreate feature selection, run:
+* To recreate feature selection, run:  
 python -i get_features.py --in_dir /dtu-compute/lira/ml_data/data --target IRI_mean --load_add_sensors --p79 --aran --recreate_fs
 
 * The output files will be in:  
