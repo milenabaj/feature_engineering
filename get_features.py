@@ -408,7 +408,7 @@ if test_df is not None:
     cols = test_df.columns.to_list()
     fe_cols = list(set(cols).difference(keep_cols))
     
-    # Pring extracted
+    # Plot extracted
     fe = {}
     for input_sensor in input_feats:
         print('Exploring extracted features for: {0}'.format(input_sensor))
@@ -454,24 +454,6 @@ if test_df is not None:
         if make_plots:
             get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'test_'+suff, norm = False)
             # add correlations
-            plot_correlation(test_df, method = 'pearson', out_dir = out_dir_plots_fs, suff = 'test_'+suff+target_name)
+            #plot_correlation(test_df, method = 'pearson', out_dir = out_dir_plots_fs, suff = 'test_'+suff+target_name)
    
   
-# TOMORROW:
-    # edit paper template
-    # add fs plots: correlations
-    # extract selected features from test
-    # merge branch on git
-    # run everything on KPI and DI and all defects
-    # push package to git
-    # update modelling package
-        
-# FRIDAY:
-    # reruning full trainvalid and test FS on M3 for IRI
-    # running trainvalid FE and FS on M3-M13 for IRI  
-        # -> when done, set recreate_fe to False and run for KPI and DI
-        # -> when done, run for test only on M13_HH for IRI, KPI and DI
-     # -> when done, run for test only on M13_HH for IRI:
-            #python -i get_features2_testonlyHH.py --in_dir /dtu-compute/lira/ml_data/data (will need to rerun with recreate_fe = False for FS only when upper done)
-    # trying GM for CPH1_HH
-    
