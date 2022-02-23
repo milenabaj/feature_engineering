@@ -55,7 +55,7 @@ args = parser.parse_args()
 if args.route:
     routes = args.route
 else:
-    routes = ['M3_VH','M3_HH']
+    routes = ['M3_VH','M3_HH','M13_VH','M13_HH']
 trip  = args.trip
 
 # Vehicle
