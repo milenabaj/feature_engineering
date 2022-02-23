@@ -1,4 +1,7 @@
 This package does feature extraction and selection. 
+
+In the feature extraction, a set of features is computed. This set is the same for any target, hence you only need to run feature selection for different targets, but do not recreate feature extraction (also very time confusing).  
+
 * Run as:  
 python -i get_features.py --in_dir /dtu-compute/lira/ml_data/data --target IRI_mean --load_add_sensors --p79 --aran  
 As a target, choose: IRI_mean, KPI or DI.
