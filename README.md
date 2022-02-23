@@ -1,9 +1,7 @@
 This package performs feature extraction and selection together.
 
 * Feature extraction:  
-In the feature extraction, a set of features is computed per each input sensor. By default, used are vertical acceleration and speed sensors. If you want to use 3D acceleration and speed, pass --use_3dacc. If you want to use all additional sensors on top, pass --use_3dacc and --use_add_sensors.
-
-The feature extraction process is time consuming and does not depend on the target - hence do not recreate it for different targets. 
+In the feature extraction, a set of features is computed per each input sensor. By default, used are vertical acceleration and speed sensors. If you want to use 3D acceleration and speed, pass --use_3dacc. If you want to use all additional sensors on top, pass --use_3dacc and --use_add_sensors. The feature extraction process is time consuming and does not depend on the target - hence do not recreate it for different targets. 
 
 * Feature selection:
 Feature selection will load extracted features and find optimal subset to model the chosen target. Hence, the output will be in new subdirectories containing the target name. For different targets, pass the target name --target <name>. As a target, choose: IRI_mean, KPI or DI.
