@@ -130,7 +130,7 @@ def clean_nans(df, col_nan_percent = 0.01, exclude_cols = ['IRI_mean_end']):
     return 
     
 def compute_features_per_series(seq, cfg):
-     t = tsfel.time_series_features_extractor(cfg, seq, window_size=len(seq),overlap=0, fs=None)
+    t = tsfel.time_series_features_extractor(cfg, seq, window_size=len(seq),overlap=0, fs=None)
     #try:
     #    t = tsfel.time_series_features_extractor(cfg, seq, window_size=len(seq),overlap=0, fs=None)
     #except:
