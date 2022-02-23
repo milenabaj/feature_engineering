@@ -14,10 +14,14 @@ python -i get_features.py --in_dir /dtu-compute/lira/ml_data/data --target IRI_m
 * To recreate feature selection step, run:  
 python -i get_features.py --in_dir /dtu-compute/lira/ml_data/data --target IRI_mean --load_add_sensors --p79 --aran --recreate_fs
 
-* The output files will be in:  
+* The output files will be in:
+  
   ** feature extraction files:  
-    /dtu-compute/lira/ml_data/data/aligned_fe_fs_GM_P79_ARAN_data_window-100-step-10 and then in route and sensor subdirectory, for the output with the routes = [M3_VH, M3_HH] with default input sensors will be in:    
+    /dtu-compute/lira/ml_data/data/aligned_fe_fs_GM_P79_ARAN_data_window-100-step-10  (then look into the -route and sensor- subdirectory)
+    
+    For example, the output with the default [M3_VH, M3_HH] routes and default input [acceleration, speed] sensors will be in:      
     /dtu-compute/lira/ml_data/data/aligned_fe_fs_GM_P79_ARAN_data_window-100-step-10/M3_VH_M3_HH_filter_speed_accspeed/  
+
  ** feature selection files:  
     This will be created in a new subdirectory within the above. In the previous example: /dtu-compute/lira/ml_data/data/ aligned_fe_fs_GM_P79_ARAN_data_window-100-step-10/M3_VH_M3_HH_filter_speed_accspeed/feature_selection_<target_name>
     
