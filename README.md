@@ -9,7 +9,7 @@ Feature selection will load extracted features and find optimal subset to model 
 * Run as:  
 python -i get_features.py --in_dir /dtu-compute/lira/ml_data/data --target IRI_mean --load_add_sensors --p79 --aran  
 
-* To recreate feature selection step, run:  
+* To recreate the feature selection step only, run:  
 python -i get_features.py --in_dir /dtu-compute/lira/ml_data/data --target IRI_mean --load_add_sensors --p79 --aran --recreate_fs
 
 * The output files will be in:
