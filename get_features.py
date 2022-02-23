@@ -85,7 +85,7 @@ dev_mode = args.dev_mode
 dev_nrows = 2
 
 
-make_plots = True
+make_plots = False
 only_test = False
 #=================================#  
 # Check mode
