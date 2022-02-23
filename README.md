@@ -16,8 +16,8 @@ python -i get_features.py --in_dir /dtu-compute/lira/ml_data/data --target IRI_m
 
 * The output files will be in:  
   ** feature extraction files:  
-    /dtu-compute/lira/ml_data/data/aligned_fe_fs_GM_P79_ARAN_data_window-100-step-10 and then in route and sensor subdirectory, for the output with the routes = [M3_VH, M3_HH] with default input sensors will be in:  
-    /dtu-compute/lira/ml_data/data/aligned_fe_fs_GM_P79_ARAN_data_window-100-step-10/M3_VH_M3_HH_filter_speed_accspeed/
- ** feature selection files: 
-    This will be created in a new subdirectory within the above. In the previous example: /dtu-compute/lira/ml_data/data/aligned_fe_fs_GM_P79_ARAN_data_window-100-step-10/M3_VH_M3_HH_filter_speed_accspeed/feature_selection_<target_name>
+    /dtu-compute/lira/ml_data/data/aligned_fe_fs_GM_P79_ARAN_data_window-100-step-10 and then in route and sensor subdirectory, for the output with the routes = [M3_VH, M3_HH] with default input sensors will be in:    
+    /dtu-compute/lira/ml_data/data/aligned_fe_fs_GM_P79_ARAN_data_window-100-step-10/M3_VH_M3_HH_filter_speed_accspeed/  
+ ** feature selection files:  
+    This will be created in a new subdirectory within the above. In the previous example: /dtu-compute/lira/ml_data/data/ aligned_fe_fs_GM_P79_ARAN_data_window-100-step-10/M3_VH_M3_HH_filter_speed_accspeed/feature_selection_<target_name>
     
