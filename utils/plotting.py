@@ -144,7 +144,7 @@ def plot_sequences(use_sliding_segments = False):
         # filter
     return
 
-def plot_correlation(df, method = 'pearson'):
+def plot_correlation(df, method = 'pearson', out_dir = None, suff = ''):
     print('Plotting method: ', method)
     dfCorr = df.corr(method = method)
     #filteredDf = dfCorr[((dfCorr >= .6) | (dfCorr <= -.6)) & (dfCorr !=1.000)]
@@ -158,6 +158,9 @@ def plot_correlation(df, method = 'pearson'):
     #res.set_yticklabels(res.get_ymajorticklabels(), rotation = 0, fontsize = font_size)
     plt.title(method)
     plt.tight_layout()
+    if out_dir:
+        out_filename = '{0}/correlations_{1}.eps'.format(out_dir, suff)
+        fig.savefig(out_filename)
     return fig
     
 def plot_type(df, var, lower_limit = -np.inf, upper_limit = np.inf, 
