@@ -321,7 +321,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
                                                                                forward=True,
                                                                                verbose=2,
                                                                                scoring='r2',
-                                                                               cv = valid_subset)
+                                                                               cv = valid_subset, max_features = 10)
             else:
                 print('Using kfold')
                 feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, bootstrap = True), 
@@ -330,7 +330,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
                                                                                forward=True,
                                                                                verbose=2,
                                                                                scoring='r2',
-                                                                               cv=tscv)
+                                                                               cv=tscv, max_features = 10)
              
         else:
             f=(1,fmax)
