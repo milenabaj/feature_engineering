@@ -274,7 +274,8 @@ else:
     trainvalid_df = df #1287
     test_df = None # 322
 
-                                    
+ 
+feature_selector = None                                   
 # Resample -  FE - FS on trainvalid
 if (trainvalid_df is not None) and (not only_test):
     to_lengths_dict = {}
@@ -356,7 +357,7 @@ if (trainvalid_df is not None) and (not only_test):
         X_valid_indices = trainvalid_df.iloc[-valid_nrows:].index.tolist()
     
     # Do FS
-    X_trainvalid_fs, sel_feature_names = find_optimal_subset(X_trainvalid_fe, y_trainvalid, valid_indices = X_valid_indices, reg_model = True, target_name = target_name,
+    X_trainvalid_fs, sel_feature_names, feature_selector = find_optimal_subset(X_trainvalid_fe, y_trainvalid, valid_indices = X_valid_indices, reg_model = True, target_name = target_name,
                                                                  out_dir =  out_dir_fs, outfile_suff = 'trainvalid_' + suff + '_'+target_name, recreate = recreate_fs)
     
     # Write json file
@@ -443,7 +444,7 @@ if test_df is not None:
 
     
     # Do FS (only selection will be done and output create)
-    X_test_fs, sel_feature_names = find_optimal_subset(test_df, y_test, reg_model = True, target_name = target_name, sel_features_names =  sel_feature_names,
+    X_test_fs, sel_feature_names, _ = find_optimal_subset(test_df, y_test, reg_model = True, target_name = target_name, sel_features_names =  sel_feature_names,
                                                                  out_dir = out_dir_fs, outfile_suff = 'test_' + suff + '_'+target_name, recreate = recreate_fs)
 
     print('Number of selected features is:{0}'.format(n_sel_features))

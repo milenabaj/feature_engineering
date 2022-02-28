@@ -288,6 +288,8 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
         
         sel_features_names = list(X_filt.columns)
         
+        feature_selector = None
+        
         print('Files loaded.')
     
     
@@ -315,22 +317,22 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
             if valid_indices is not None:
                 print('Using a valid subset')
                 valid_subset = PredefinedHoldoutSplit(valid_indices)
-                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, bootstrap = True), 
+                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, max_features = 10), 
                                                                                n_jobs=-1,
                                                                                k_features=f,
                                                                                forward=True,
                                                                                verbose=2,
                                                                                scoring='r2',
-                                                                               cv = valid_subset, max_features = 10)
+                                                                               cv = valid_subset)
             else:
                 print('Using kfold')
-                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, bootstrap = True), 
+                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, max_features = 10), 
                                                                                n_jobs=-1,
                                                                                k_features=f,
                                                                                forward=True,
                                                                                verbose=2,
                                                                                scoring='r2',
-                                                                               cv=tscv, max_features = 10)
+                                                                               cv=tscv)
              
         else:
             f=(1,fmax)
@@ -422,13 +424,15 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
         # Merge with the target
         X_filt[target_name] = y
         
+        feature_selector = None
+        
         # Dump them
         if save_output:
             X_filt.to_pickle(x_filename)
             print('Wrote to ',x_filename)
             
     
-    return X_filt, sel_features_names
+    return X_filt, sel_features_names, feature_selector
 
 
 def compute_di_aran(data):
