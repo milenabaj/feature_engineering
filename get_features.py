@@ -378,7 +378,11 @@ if (trainvalid_df is not None) and (not only_test):
             # add correlation plots
             #plot_correlation(trainvalid_df, method = 'pearson', out_dir = out_dir_plots_fs, suff = 'trainvalid_'+suff+target_name)
    
- 
+    if feature_selector:
+        model = feature_selector.estimator
+        model.fit(X_trainvalid_fs, y_trainvalid)
+        s_trainvalid = model.score(X_trainvalid_fs, y_trainvalid)
+        print('Score (trainvalid): ',s_trainvalid)
 
 ##### TEST DF ####
 ###################   
@@ -457,4 +461,11 @@ if test_df is not None:
             # add correlations
             #plot_correlation(test_df, method = 'pearson', out_dir = out_dir_plots_fs, suff = 'test_'+suff+target_name)
    
+    # Obtain prediction with SFS model 
+    try:
+        s_test = model.score(X_test_fs, y_test)
+        print('Score (trainvalid): ',s_trainvalid)
+        print('Score (test): ',s_test)
+    except:
+        pass
   
