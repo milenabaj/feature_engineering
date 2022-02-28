@@ -87,6 +87,7 @@ dev_nrows = 2
 
 make_plots = False
 only_test = False
+resample = False
 #=================================#  
 # Check mode
 if mode and mode not in ['trainvalid','trainvalidkfold','trainvalid_test','trainvalidkfold_test']:
@@ -294,7 +295,8 @@ if (trainvalid_df is not None) and (not only_test):
     # Write some info
     
     # Resample
-    trainvalid_df, feats_resampled = resample_df(trainvalid_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
+    if resample:
+        trainvalid_df, feats_resampled = resample_df(trainvalid_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
     
     # Do feature extraction 
     keep_cols = trainvalid_df.columns.to_list()
@@ -353,7 +355,7 @@ if (trainvalid_df is not None) and (not only_test):
         X_valid_indices = None # the trainvalid fs will be done in kfold manner
     else:
         print('SFS will be done with train-valid split validation')
-        valid_nrows = int(0.2*trainvalid_df.shape[0])
+        valid_nrows = int(0.25*trainvalid_df.shape[0]) # valid = 0.2 of the whole dataset, 0.25 of trainvalid
         X_valid_indices = trainvalid_df.iloc[-valid_nrows:].index.tolist()
     
     # Do FS
@@ -401,7 +403,8 @@ if test_df is not None:
     # Write some info
     
     # Resample
-    test_df, feats_resampled = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
+    if resample:
+        test_df, feats_resampled = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
     
     # Do feature extraction 
     keep_cols = test_df.columns.to_list()
