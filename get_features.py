@@ -293,7 +293,7 @@ if (trainvalid_df is not None) and (not only_test):
     # Write some info
     
     # Resample
-    #trainvalid_df, feats_resampled = resample_df(trainvalid_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
+    trainvalid_df, feats_resampled = resample_df(trainvalid_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
     
     # Do feature extraction 
     keep_cols = trainvalid_df.columns.to_list()
@@ -396,7 +396,7 @@ if test_df is not None:
     # Write some info
     
     # Resample
-    #test_df, feats_resampled = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
+    test_df, feats_resampled = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
     
     # Do feature extraction 
     keep_cols = test_df.columns.to_list()
