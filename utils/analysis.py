@@ -307,7 +307,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
                 #test.drop(col,axis=1,inplace=True)
     
         # Feature search
-        tscv = TimeSeriesSplit(n_splits=2)
+        tscv = TimeSeriesSplit(n_splits=5)
         fmax = 30 #remove
         if not fmax:
             fmax = X.shape[1]-1
