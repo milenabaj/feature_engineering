@@ -305,7 +305,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
                 #test.drop(col,axis=1,inplace=True)
     
         # Feature search
-        tscv = TimeSeriesSplit(n_splits=5)
+        tscv = TimeSeriesSplit(n_splits=2)
         fmax = 12 #remove
         if not fmax:
             fmax = X.shape[1]-1
@@ -313,22 +313,24 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
         if reg_model:
             f=(1,fmax) 
             if valid_indices is not None:
+                print('Using a valid subset')
                 valid_subset = PredefinedHoldoutSplit(valid_indices)
                 feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, bootstrap = True), 
                                                                                n_jobs=-1,
                                                                                k_features=f,
                                                                                forward=True,
                                                                                verbose=2,
-                                                                               scoring='neg_mean_squared_error',
+                                                                               scoring='r2',
                                                                                cv = valid_subset)
             else:
+                print('Using kfold')
                 feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, bootstrap = True), 
                                                                                n_jobs=-1,
                                                                                k_features=f,
                                                                                forward=True,
                                                                                verbose=2,
-                                                                               scoring='neg_mean_squared_error',
-                                                                               cv=5)
+                                                                               scoring='r2',
+                                                                               cv=tscv)
              
         else:
             f=(1,fmax)
@@ -580,6 +582,7 @@ def get_regression_model(model, f_maxsel, random_state = None, use_default = Fal
     elif model=='kNN':
         rf = KNeighborsRegressor()
         k = np.arange(5,41,step=5) 
+        k = np.append([1,2,3,4],k)
         parameters={'n_neighbors':k}
     elif model=='ridge':
         rf = linear_model.Ridge(random_state=random_state)
