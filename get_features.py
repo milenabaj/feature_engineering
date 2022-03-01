@@ -346,7 +346,63 @@ if (trainvalid_df is not None) and (not only_test):
 
 
 # =====================================================================   #
-# Feature selection for trainvalid
+# Feature extraction for test
+# =====================================================================   #  
+if test_df is not None:
+    to_lengths_dict = {}
+    for feat in input_feats:
+        a =  test_df[feat].apply(lambda seq: seq.shape[0])
+        l = int(a.quantile(0.90))
+        to_lengths_dict[feat] = l
+        
+    # Plot test
+    for var in vars_to_plot:
+        x = test_df[var]
+        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = '_test')
+    # Write some info
+    
+    # Resample
+    if resample:
+        test_df, feats_resampled = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
+    
+    # Do feature extraction 
+    keep_cols = test_df.columns.to_list()
+    test_df, fe_filename = feature_extraction(test_df, keep_cols = keep_cols, feats = input_feats, 
+                                               out_dir = out_dir_base, 
+                                               file_suff = routes_string + suff +'_test', 
+                                               write_out_file = True, recreate = recreate_fe, predict_mode = predict_mode)
+ 
+
+    cols = test_df.columns.to_list()
+    fe_cols = list(set(cols).difference(keep_cols))
+    
+    # Plot extracted
+    fe = {}
+    for input_sensor in input_feats:
+        print('Exploring extracted features for: {0}'.format(input_sensor))
+        fe_this_sensor = [col for col in fe_cols if input_sensor in col]
+        n_fe_this_sensor = len(fe_this_sensor)
+        print('=== Sensor: {0}, extracted: {1} features'.format(input_sensor,  n_fe_this_sensor))
+        fe[input_sensor] =  fe_this_sensor
+         
+    # Plot histogram of each extracted feature and correlation with the target
+    for var in fe_cols:
+        x = test_df[var]
+        if make_plots:
+            get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = 'test_'+suff, norm = False)
+
+    # Compute target if DI or KPI
+    if target_name=='DI' or 'KPI':
+        compute_di_aran(test_df)
+        compute_kpi_aran(test_df)
+        
+    # Select target 
+    X_test_fe = test_df[fe_cols]
+    y_test =  test_df[target_name]  
+
+
+# =====================================================================   #
+# Feature selection for trainvalid and test
 # =====================================================================   # 
 # SFS
 model_names = ['random_forest']
@@ -378,11 +434,13 @@ for model_name in model_names:
                                                                                recreate = recreate_fs)
     
     # Write json file
-    json_feats_file = 'json/selected_features_{0}_route-{0}_GM_trip-{1}_sensors-{2}_model-{3}.json'.format(drd_veh, routes_string, suff, model_name)  
-    f =  open(json_feats_file, "w") 
-    sel_feat_data = {"features":sel_feature_names}
-    json.dump(sel_feat_data, f)    
-    f.close()
+    json_feats_file_1 = 'json/selected_features_{0}_route-{0}_GM_trip-{1}_sensors-{2}_model-{3}.json'.format(drd_veh, routes_string, suff, model_name)  
+    json_feats_file_2 = json_feats_file_1.replace('json/', out_dir)
+    for f in [json_feats_file_1, json_feats_file_2]:
+        f =  open(json_feats_file, "w") 
+        sel_feat_data = {"features":sel_feature_names}
+        json.dump(sel_feat_data, f)    
+        f.close()
     
     # Print selected features
     n_sel_features = len(sel_feature_names) 
@@ -410,90 +468,37 @@ for model_name in model_names:
         pickle.dump(model, handle, protocol=4)
         print('Wrote best model to: {0}'.format(model_path))
     
-    sys.exit(0)
-    ##### TEST DF ####
-    ###################   
-    if test_df is not None:
-        to_lengths_dict = {}
-        for feat in input_feats:
-            a =  test_df[feat].apply(lambda seq: seq.shape[0])
-            l = int(a.quantile(0.90))
-            to_lengths_dict[feat] = l
-            
-        # Plot test
-        for var in vars_to_plot:
-            x = test_df[var]
-            get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = '_test')
+
+   # =====================================================================   #
+   # Feature selection for test
+   # =====================================================================   # 
+    # Load selected features
+    with open(json_feats_file_1) as json_file:
+        data = json.load(json_file)
+    sel_feature_names = data["features"]
+    n_sel_features = len(sel_feature_names)
         
-        # Write some info
-        
-        # Resample
-        if resample:
-            test_df, feats_resampled = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
-        
-        # Do feature extraction 
-        keep_cols = test_df.columns.to_list()
-        test_df, fe_filename = feature_extraction(test_df, keep_cols = keep_cols, feats = input_feats, out_dir = out_dir, 
-                                                   file_suff = routes_string + suff +'_test', 
-                                                   write_out_file = True, recreate = recreate_fe, predict_mode = predict_mode)
-     
+    print('Selected features are: {0}'.format(sel_feature_names))
+    print('Number of selected features is:{0}'.format(n_sel_features))
     
-        cols = test_df.columns.to_list()
-        fe_cols = list(set(cols).difference(keep_cols))
-        
-        # Plot extracted
-        fe = {}
-        for input_sensor in input_feats:
-            print('Exploring extracted features for: {0}'.format(input_sensor))
-            fe_this_sensor = [col for col in fe_cols if input_sensor in col]
-            n_fe_this_sensor = len(fe_this_sensor)
-            print('=== Sensor: {0}, extracted: {1} features'.format(input_sensor,  n_fe_this_sensor))
-            fe[input_sensor] =  fe_this_sensor
-             
-        # Plot histogram of each extracted feature and correlation with the target
-        for var in fe_cols:
-            x = test_df[var]
-            if make_plots:
-                get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = 'test_'+suff, norm = False)
-                # add correlations
-            
-        # Load selected features
-        with open(json_feats_file) as json_file:
-            data = json.load(json_file)
-        sel_feature_names = data["features"]
-        n_sel_features = len(sel_feature_names)
-            
-        print('Selected features are: {0}'.format(sel_feature_names))
-        print('Number of selected features is:{0}'.format(n_sel_features))
-        
-        # Compute target if DI or KPI
-        if target_name=='DI' or 'KPI':
-            compute_di_aran(test_df)
-            compute_kpi_aran(test_df)
-            
-        # Select target 
-        y_test =  test_df[target_name]
     
-        
-        # Do FS (only selection will be done and output create)
-        X_test_fs, sel_feature_names, _ = find_optimal_subset(test_df, y_test, reg_model = True, target_name = target_name, sel_features_names =  sel_feature_names,
-                                                                     out_dir = out_dir_fs, outfile_suff = 'test_' + suff + '_'+target_name, recreate = recreate_fs)
+    # Do FS (only selection will be done and output create)
+    X_test_fs, sel_feature_names, _ = find_optimal_subset(X_test_fe, y_test, reg_model = True, target_name = target_name, sel_features_names =  sel_feature_names,
+                                                                 out_dir = out_dir_fs, outfile_suff = 'test_' + suff + '_'+target_name, recreate = recreate_fs)
+
+    print('Number of selected features is:{0}'.format(n_sel_features))
     
-        print('Number of selected features is:{0}'.format(n_sel_features))
-        
-        # Plot histogram of each selected feature and correlation with the target
-        for var in fe_cols:
-            x = test_df[var]
-            if make_plots:
-                get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'test_'+suff, norm = False)
-                # add correlations
-                #plot_correlation(test_df, method = 'pearson', out_dir = out_dir_plots_fs, suff = 'test_'+suff+target_name)
-       
-        # Obtain prediction with SFS model 
-        try:
-            s_test = model.score(X_test_fs, y_test)
-            print('Score (trainvalid): ',s_trainvalid)
-            print('Score (test): ',s_test)
-        except:
-            pass
+    # Plot histogram of each selected feature and correlation with the target
+    for var in fe_cols:
+        x = test_df[var]
+        if make_plots:
+            get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'test_'+suff, norm = False)
+   
+    # Obtain prediction with SFS model 
+    try:
+        s_test = model.score(X_test_fs, y_test)
+        print('Score (trainvalid): ',s_trainvalid)
+        print('Score (test): ',s_test)
+    except:
+        pass
       
