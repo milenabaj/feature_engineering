@@ -374,7 +374,7 @@ for model_name in model_names:
                                                                                reg_model = True, 
                                                                                target_name = target_name,
                                                                                out_dir =  out_dir_fs, 
-                                                                               utfile_suff = 'trainvalid_' + suff + '_'+target_name, 
+                                                                               outfile_suff = 'trainvalid_' + suff + '_'+target_name, 
                                                                                recreate = recreate_fs)
     
     # Write json file
