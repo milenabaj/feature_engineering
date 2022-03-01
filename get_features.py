@@ -442,11 +442,11 @@ for model_name in model_names:
         
     # Write feature info into a tex file
     tex_feats_file = json_feats_file_2.replace('json','tex')
-    sel_feat_data.to_latex(index=False))
+    sel_feat_data.to_latex(tex_feats_file)
     
-    sel_feat_data.to_latex(tex_feats_file, columns = feats.columns, index = False, 
-                    float_format = lambda x: '%.2e' % x, label = 'table:selected_features',  
-                    header=[format_col(col) for col in feats.columns], escape=False)
+    #sel_feat_data.to_latex(tex_feats_file, columns = feats.columns, index = False, 
+    #                float_format = lambda x: '%.2e' % x, label = 'table:selected_features',  
+    #                header=[format_col(col) for col in feats.columns], escape=False)
     
     # Print selected features
     n_sel_features = len(sel_feature_names) 
