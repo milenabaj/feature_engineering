@@ -437,7 +437,7 @@ for model_name in model_names:
     json_feats_file_1 = 'json/selected_features_{0}_route-{0}_GM_trip-{1}_sensors-{2}_model-{3}.json'.format(drd_veh, routes_string, suff, model_name)  
     json_feats_file_2 = json_feats_file_1.replace('json/', out_dir)
     for f_name in [json_feats_file_1, json_feats_file_2]:
-        f =  open(json_feats_file_name, "w") 
+        f =  open(f_name, "w") 
         sel_feat_data = {"features":sel_feature_names}
         json.dump(sel_feat_data, f)    
         f.close()
