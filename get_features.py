@@ -240,7 +240,7 @@ df.reset_index(inplace=True, drop = True)
 vars_to_plot = ['IRI_mean', 'GM.obd.spd_veh.value']
 for var in vars_to_plot:
     x = df[var]
-    get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = '_all')
+    get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = '_all')
     
 # Predict mode
 if predict_mode:
