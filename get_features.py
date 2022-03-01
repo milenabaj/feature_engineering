@@ -172,27 +172,15 @@ if load_add_sensors and not use_add_sensors:
     out_dir = out_dir.replace('_add_sensors','')
     
 # Create dir
-if not os.path.exists(out_dir):
-    os.makedirs(out_dir)
+out_dir_base = out_dir
+if not os.path.exists(out_dir_base):
+    os.makedirs(out_dir_base)
     
-out_dir_plots_fe = '{0}/plots_fe'.format(out_dir)
+# FE output
+out_dir_plots_fe = '{0}/plots_fe'.format(out_dir_base)
 if not os.path.exists(out_dir_plots_fe):
     os.makedirs(out_dir_plots_fe)
-
-
-out_dir_fs = '{0}/feature_selection_{1}'.format(out_dir, target_name)
-if not os.path.exists(out_dir_fs):
-    os.makedirs(out_dir_fs)
-    
-out_dir_plots_fs = '{0}/plots_fs'.format(out_dir_fs)
-if not os.path.exists(out_dir_plots_fs):
-    os.makedirs(out_dir_plots_fs)
-    
-if not predict_mode:
-    json_feats_file = 'json/selected_features_{0}_route-{0}_GM_trip-{1}_sensors-{2}.json'.format(drd_veh, routes_string, suff)  
-else:
-    json_feats_file = None # add file
-    
+           
 print('p79 data? ', p79)
 print('Aran data? ', aran)
 print('Viafrik data? ',viafrik)
@@ -275,99 +263,128 @@ else:
     trainvalid_df = df #1287
     test_df = None # 322
 
- 
-feature_selector = None                                   
-# Resample -  FE - FS on trainvalid
+   
+# =====================================================================   #
+# Feature extraction for trainvalid
+# =====================================================================   # 
 if (trainvalid_df is not None) and (not only_test):
-    to_lengths_dict = {}
-    for feat in input_feats:
-        a =  trainvalid_df[feat].apply(lambda seq: seq.shape[0])
-        l = int(a.quantile(0.90))
-        to_lengths_dict[feat] = l
-        #print(to_lengths_dict)
-        #to_lengths_dict = {'GM.acc.xyz.z': 369, 'GM.obd.spd_veh.value':309} # this was used for motorway
-        
-    # Plot trainvalid
-    for var in vars_to_plot:
-        x = trainvalid_df[var]
-        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = '_trainvalid')
-    
-    # Write some info
-    
-    # Resample
-    if resample:
-        trainvalid_df, feats_resampled = resample_df(trainvalid_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
-    
-    # Do feature extraction 
-    keep_cols = trainvalid_df.columns.to_list()
-    trainvalid_df, fe_filename = feature_extraction(trainvalid_df, keep_cols = keep_cols, feats = input_feats, out_dir = out_dir, 
-                                               file_suff = routes_string + suff +'_trainvalid', 
-                                               write_out_file = True, recreate = recreate_fe, predict_mode = predict_mode)
- 
-
-    cols = trainvalid_df.columns.to_list()
-    fe_cols = list(set(cols).difference(keep_cols))
-    
-    fe = {}
-    for input_sensor in input_feats:
-        print('Exploring extracted features for: {0}'.format(input_sensor))
-        fe_this_sensor = [col for col in fe_cols if input_sensor in col]
-        n_fe_this_sensor = len(fe_this_sensor)
-        print('=== Sensor: {0}, extracted: {1} features'.format(input_sensor,  n_fe_this_sensor))
-        fe[input_sensor] =  fe_this_sensor
-        
-    #=== Sensor: GM.obd.spd_veh.value, extracted: 35 features
-    #=== Sensor: GM.acc.xyz.z, extracted: 35 features
-    # ['GM.acc.xyz.z-0_Neighbourhood peaks', 'GM.acc.xyz.z-0_Entropy', 'GM.acc.xyz.z-0_Mean absolute diff', 'GM.acc.xyz.z-0_Area under the curve', 'GM.acc.xyz.z-0_ECDF Percentile 0.8', 'GM.acc.xyz.z-0_ECDF Percentile 0.2', 'GM.acc.xyz.z-0_Interquartile range', 'GM.acc.xyz.z-0_Median absolute deviation', 'GM.acc.xyz.z-0_Mean diff', 'GM.acc.xyz.z-0_Zero crossing rate', 'GM.acc.xyz.z-0_Variance', 'GM.acc.xyz.z-0_Root mean square', 'GM.acc.xyz.z-0_Skewness', 'GM.acc.xyz.z-0_Centroid', 'GM.acc.xyz.z-0_Signal distance', 'GM.acc.xyz.z-0_Negative turning points', 'GM.acc.xyz.z-0_Max', 'GM.acc.xyz.z-0_Absolute energy', 'GM.acc.xyz.z-0_Min', 'GM.acc.xyz.z-0_Sum absolute diff', 'GM.acc.xyz.z-0_ECDF Percentile 0.05', 'GM.acc.xyz.z-0_Mean absolute deviation', 'GM.acc.xyz.z-0_Autocorrelation', 'GM.acc.xyz.z-0_Peak to peak distance', 'GM.acc.xyz.z-0_Maxmin diff', 'GM.acc.xyz.z-0_Median', 'GM.acc.xyz.z-0_Positive turning points', 'GM.acc.xyz.z-0_Kurtosis', 'GM.acc.xyz.z-0_ECDF Percentile 0.1', 'GM.acc.xyz.z-0_Slope', 'GM.acc.xyz.z-0_Median absolute diff', 'GM.acc.xyz.z-0_Median diff', 'GM.acc.xyz.z-0_Total energy', 'GM.acc.xyz.z-0_Mean', 'GM.acc.xyz.z-0_Standard deviation']
-    
-    # Plot histogram of each extracted feature and correlation with the target
-    for var in fe_cols:
-        x = trainvalid_df[var]
-        if make_plots:
-            get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = 'trainvalid_'+suff, norm = False)
-            # add correlation plots
+        to_lengths_dict = {}
+        for feat in input_feats:
+            a =  trainvalid_df[feat].apply(lambda seq: seq.shape[0])
+            l = int(a.quantile(0.90))
+            to_lengths_dict[feat] = l
+            #print(to_lengths_dict)
+            #to_lengths_dict = {'GM.acc.xyz.z': 369, 'GM.obd.spd_veh.value':309} # this was used for motorway
             
-    # Write info about trainvalid
-    # todo
-    
-    # Remove some columns if needed
-    to_rem = []
-    avail_cols = list(trainvalid_df.columns)
-    for col in avail_cols:
-        if any(x in col for x in ['ECDF Percentile Count', 'ECDF_']):
-             to_rem.append(col)  
-
-    trainvalid_df.drop(to_rem,axis=1,inplace=True)
-    trainvalid_df.reset_index(drop=True, inplace = True)
-    
-    # Compute target if DI or KPI
-    if target_name=='DI' or 'KPI':
-        compute_di_aran(trainvalid_df)
-        compute_kpi_aran(trainvalid_df)
+        # Plot trainvalid
+        for var in vars_to_plot:
+            x = trainvalid_df[var]
+            get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = '_trainvalid')
         
-    # Select X and target 
-    X_trainvalid_fe = trainvalid_df[fe_cols] 
-    y_trainvalid =  trainvalid_df[target_name]
+        
+        # Resample
+        if resample:
+            trainvalid_df, feats_resampled = resample_df(trainvalid_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
+        
+        # Do feature extraction 
+        keep_cols = trainvalid_df.columns.to_list()
+        trainvalid_df, fe_filename = feature_extraction(trainvalid_df, keep_cols = keep_cols, feats = input_feats, 
+                                                        out_dir = out_dir_base, 
+                                                   file_suff = routes_string + suff +'_trainvalid', 
+                                                   write_out_file = True, recreate = recreate_fe, predict_mode = predict_mode)
+     
     
-    # Get valid indices
-    if 'kfold' in mode:
-        print('SFS will be done with kfold validation')
-        X_valid_indices = None # the trainvalid fs will be done in kfold manner
-    else:
-        print('SFS will be done with train-valid split validation')
-        valid_nrows = int(0.25*trainvalid_df.shape[0]) # valid = 0.2 of the whole dataset, 0.25 of trainvalid
-        X_valid_indices = trainvalid_df.iloc[-valid_nrows:].index.tolist()
+        cols = trainvalid_df.columns.to_list()
+        fe_cols = list(set(cols).difference(keep_cols))
+        
+        fe = {}
+        for input_sensor in input_feats:
+            print('Exploring extracted features for: {0}'.format(input_sensor))
+            fe_this_sensor = [col for col in fe_cols if input_sensor in col]
+            n_fe_this_sensor = len(fe_this_sensor)
+            print('=== Sensor: {0}, extracted: {1} features'.format(input_sensor,  n_fe_this_sensor))
+            fe[input_sensor] =  fe_this_sensor
+            
+        #=== Sensor: GM.obd.spd_veh.value, extracted: 35 features
+        #=== Sensor: GM.acc.xyz.z, extracted: 35 features
+        # ['GM.acc.xyz.z-0_Neighbourhood peaks', 'GM.acc.xyz.z-0_Entropy', 'GM.acc.xyz.z-0_Mean absolute diff', 'GM.acc.xyz.z-0_Area under the curve', 'GM.acc.xyz.z-0_ECDF Percentile 0.8', 'GM.acc.xyz.z-0_ECDF Percentile 0.2', 'GM.acc.xyz.z-0_Interquartile range', 'GM.acc.xyz.z-0_Median absolute deviation', 'GM.acc.xyz.z-0_Mean diff', 'GM.acc.xyz.z-0_Zero crossing rate', 'GM.acc.xyz.z-0_Variance', 'GM.acc.xyz.z-0_Root mean square', 'GM.acc.xyz.z-0_Skewness', 'GM.acc.xyz.z-0_Centroid', 'GM.acc.xyz.z-0_Signal distance', 'GM.acc.xyz.z-0_Negative turning points', 'GM.acc.xyz.z-0_Max', 'GM.acc.xyz.z-0_Absolute energy', 'GM.acc.xyz.z-0_Min', 'GM.acc.xyz.z-0_Sum absolute diff', 'GM.acc.xyz.z-0_ECDF Percentile 0.05', 'GM.acc.xyz.z-0_Mean absolute deviation', 'GM.acc.xyz.z-0_Autocorrelation', 'GM.acc.xyz.z-0_Peak to peak distance', 'GM.acc.xyz.z-0_Maxmin diff', 'GM.acc.xyz.z-0_Median', 'GM.acc.xyz.z-0_Positive turning points', 'GM.acc.xyz.z-0_Kurtosis', 'GM.acc.xyz.z-0_ECDF Percentile 0.1', 'GM.acc.xyz.z-0_Slope', 'GM.acc.xyz.z-0_Median absolute diff', 'GM.acc.xyz.z-0_Median diff', 'GM.acc.xyz.z-0_Total energy', 'GM.acc.xyz.z-0_Mean', 'GM.acc.xyz.z-0_Standard deviation']
+        
+        # Plot histogram of each extracted feature and correlation with the target
+        for var in fe_cols:
+            x = trainvalid_df[var]
+            if make_plots:
+                get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = 'trainvalid_'+suff, norm = False)
+
+
+        # Remove some columns if needed
+        to_rem = []
+        avail_cols = list(trainvalid_df.columns)
+        for col in avail_cols:
+            if any(x in col for x in ['ECDF Percentile Count', 'ECDF_']):
+                 to_rem.append(col)  
     
+        trainvalid_df.drop(to_rem,axis=1,inplace=True)
+        trainvalid_df.reset_index(drop=True, inplace = True)
+        
+        # Compute target if DI or KPI
+        if target_name=='DI' or 'KPI':
+            compute_di_aran(trainvalid_df)
+            compute_kpi_aran(trainvalid_df)
+            
+        # Select X and target 
+        X_trainvalid_fe = trainvalid_df[fe_cols] 
+        y_trainvalid =  trainvalid_df[target_name]
+        
+        # Get valid indices
+        if 'kfold' in mode:
+            print('SFS will be done with kfold validation')
+            X_valid_indices = None # the trainvalid fs will be done in kfold manner
+        else:
+            print('SFS will be done with train-valid split validation')
+            valid_nrows = int(0.25*trainvalid_df.shape[0]) # valid = 0.2 of the whole dataset, 0.25 of trainvalid
+            X_valid_indices = trainvalid_df.iloc[-valid_nrows:].index.tolist()
+
+
+# =====================================================================   #
+# Feature selection for trainvalid
+# =====================================================================   # 
+# SFS
+model_names = ['random_forest']
+
+for model_name in model_names:
+    
+    # Create dir for this model
+    out_dir = '{0}/{1}'.format(out_dir_base, model_name)
+    if not os.path.exists(out_dir):
+        os.makedirs(out_dir)
+    
+    # Out dir for FS
+    out_dir_fs = '{0}/feature_selection_{1}'.format(out_dir, target_name)
+    if not os.path.exists(out_dir_fs):
+        os.makedirs(out_dir_fs)
+    
+    out_dir_plots_fs = '{0}/plots_fs'.format(out_dir_fs)
+    if not os.path.exists(out_dir_plots_fs):
+        os.makedirs(out_dir_plots_fs)
+
+            
     # Do FS
-    X_trainvalid_fs, sel_feature_names, feature_selector = find_optimal_subset(X_trainvalid_fe, y_trainvalid, valid_indices = X_valid_indices, reg_model = True, target_name = target_name,
-                                                                 out_dir =  out_dir_fs, outfile_suff = 'trainvalid_' + suff + '_'+target_name, recreate = recreate_fs)
+    X_trainvalid_fs, sel_feature_names, feature_selector = find_optimal_subset(X_trainvalid_fe, y_trainvalid, 
+                                                                               valid_indices = X_valid_indices, 
+                                                                               reg_model = True, 
+                                                                               target_name = target_name,
+                                                                               out_dir =  out_dir_fs, 
+                                                                               utfile_suff = 'trainvalid_' + suff + '_'+target_name, 
+                                                                               recreate = recreate_fs)
     
     # Write json file
+    json_feats_file = 'json/selected_features_{0}_route-{0}_GM_trip-{1}_sensors-{2}_model-{3}.json'.format(drd_veh, routes_string, suff, model_name)  
     f =  open(json_feats_file, "w") 
     sel_feat_data = {"features":sel_feature_names}
     json.dump(sel_feat_data, f)    
     f.close()
     
+    # Print selected features
     n_sel_features = len(sel_feature_names) 
     print('Selected features are: {0}'.format(sel_feature_names))
     print('Number of selected features is:{0}'.format(n_sel_features))
@@ -380,95 +397,103 @@ if (trainvalid_df is not None) and (not only_test):
             # add correlation plots
             #plot_correlation(trainvalid_df, method = 'pearson', out_dir = out_dir_plots_fs, suff = 'trainvalid_'+suff+target_name)
    
+    # Evaluate on full trainvalid
     if feature_selector:
         model = feature_selector.estimator
         model.fit(X_trainvalid_fs, y_trainvalid)
         s_trainvalid = model.score(X_trainvalid_fs, y_trainvalid)
         print('Score (trainvalid): ',s_trainvalid)
-
-##### TEST DF ####
-###################   
-if test_df is not None:
-    to_lengths_dict = {}
-    for feat in input_feats:
-        a =  test_df[feat].apply(lambda seq: seq.shape[0])
-        l = int(a.quantile(0.90))
-        to_lengths_dict[feat] = l
         
-    # Plot test
-    for var in vars_to_plot:
-        x = test_df[var]
-        get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = '_test')
+    # Save the best model, its parameters and predictions
+    model_path = '{0}/best_model_{1}.pickle'.format(out_dir, model_name)
+    with open(model_path, 'wb') as handle:
+        pickle.dump(model, handle, protocol=4)
+        print('Wrote best model to: {0}'.format(model_path))
     
-    # Write some info
-    
-    # Resample
-    if resample:
-        test_df, feats_resampled = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
-    
-    # Do feature extraction 
-    keep_cols = test_df.columns.to_list()
-    test_df, fe_filename = feature_extraction(test_df, keep_cols = keep_cols, feats = input_feats, out_dir = out_dir, 
-                                               file_suff = routes_string + suff +'_test', 
-                                               write_out_file = True, recreate = recreate_fe, predict_mode = predict_mode)
- 
-
-    cols = test_df.columns.to_list()
-    fe_cols = list(set(cols).difference(keep_cols))
-    
-    # Plot extracted
-    fe = {}
-    for input_sensor in input_feats:
-        print('Exploring extracted features for: {0}'.format(input_sensor))
-        fe_this_sensor = [col for col in fe_cols if input_sensor in col]
-        n_fe_this_sensor = len(fe_this_sensor)
-        print('=== Sensor: {0}, extracted: {1} features'.format(input_sensor,  n_fe_this_sensor))
-        fe[input_sensor] =  fe_this_sensor
-         
-    # Plot histogram of each extracted feature and correlation with the target
-    for var in fe_cols:
-        x = test_df[var]
-        if make_plots:
-            get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = 'test_'+suff, norm = False)
-            # add correlations
+    sys.exit(0)
+    ##### TEST DF ####
+    ###################   
+    if test_df is not None:
+        to_lengths_dict = {}
+        for feat in input_feats:
+            a =  test_df[feat].apply(lambda seq: seq.shape[0])
+            l = int(a.quantile(0.90))
+            to_lengths_dict[feat] = l
+            
+        # Plot test
+        for var in vars_to_plot:
+            x = test_df[var]
+            get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = '_test')
         
-    # Load selected features
-    with open(json_feats_file) as json_file:
-        data = json.load(json_file)
-    sel_feature_names = data["features"]
-    n_sel_features = len(sel_feature_names)
+        # Write some info
         
-    print('Selected features are: {0}'.format(sel_feature_names))
-    print('Number of selected features is:{0}'.format(n_sel_features))
-    
-    # Compute target if DI or KPI
-    if target_name=='DI' or 'KPI':
-        compute_di_aran(test_df)
-        compute_kpi_aran(test_df)
+        # Resample
+        if resample:
+            test_df, feats_resampled = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
         
-    # Select target 
-    y_test =  test_df[target_name]
-
+        # Do feature extraction 
+        keep_cols = test_df.columns.to_list()
+        test_df, fe_filename = feature_extraction(test_df, keep_cols = keep_cols, feats = input_feats, out_dir = out_dir, 
+                                                   file_suff = routes_string + suff +'_test', 
+                                                   write_out_file = True, recreate = recreate_fe, predict_mode = predict_mode)
+     
     
-    # Do FS (only selection will be done and output create)
-    X_test_fs, sel_feature_names, _ = find_optimal_subset(test_df, y_test, reg_model = True, target_name = target_name, sel_features_names =  sel_feature_names,
-                                                                 out_dir = out_dir_fs, outfile_suff = 'test_' + suff + '_'+target_name, recreate = recreate_fs)
-
-    print('Number of selected features is:{0}'.format(n_sel_features))
+        cols = test_df.columns.to_list()
+        fe_cols = list(set(cols).difference(keep_cols))
+        
+        # Plot extracted
+        fe = {}
+        for input_sensor in input_feats:
+            print('Exploring extracted features for: {0}'.format(input_sensor))
+            fe_this_sensor = [col for col in fe_cols if input_sensor in col]
+            n_fe_this_sensor = len(fe_this_sensor)
+            print('=== Sensor: {0}, extracted: {1} features'.format(input_sensor,  n_fe_this_sensor))
+            fe[input_sensor] =  fe_this_sensor
+             
+        # Plot histogram of each extracted feature and correlation with the target
+        for var in fe_cols:
+            x = test_df[var]
+            if make_plots:
+                get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = 'test_'+suff, norm = False)
+                # add correlations
+            
+        # Load selected features
+        with open(json_feats_file) as json_file:
+            data = json.load(json_file)
+        sel_feature_names = data["features"]
+        n_sel_features = len(sel_feature_names)
+            
+        print('Selected features are: {0}'.format(sel_feature_names))
+        print('Number of selected features is:{0}'.format(n_sel_features))
+        
+        # Compute target if DI or KPI
+        if target_name=='DI' or 'KPI':
+            compute_di_aran(test_df)
+            compute_kpi_aran(test_df)
+            
+        # Select target 
+        y_test =  test_df[target_name]
     
-    # Plot histogram of each selected feature and correlation with the target
-    for var in fe_cols:
-        x = test_df[var]
-        if make_plots:
-            get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'test_'+suff, norm = False)
-            # add correlations
-            #plot_correlation(test_df, method = 'pearson', out_dir = out_dir_plots_fs, suff = 'test_'+suff+target_name)
-   
-    # Obtain prediction with SFS model 
-    try:
-        s_test = model.score(X_test_fs, y_test)
-        print('Score (trainvalid): ',s_trainvalid)
-        print('Score (test): ',s_test)
-    except:
-        pass
-  
+        
+        # Do FS (only selection will be done and output create)
+        X_test_fs, sel_feature_names, _ = find_optimal_subset(test_df, y_test, reg_model = True, target_name = target_name, sel_features_names =  sel_feature_names,
+                                                                     out_dir = out_dir_fs, outfile_suff = 'test_' + suff + '_'+target_name, recreate = recreate_fs)
+    
+        print('Number of selected features is:{0}'.format(n_sel_features))
+        
+        # Plot histogram of each selected feature and correlation with the target
+        for var in fe_cols:
+            x = test_df[var]
+            if make_plots:
+                get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'test_'+suff, norm = False)
+                # add correlations
+                #plot_correlation(test_df, method = 'pearson', out_dir = out_dir_plots_fs, suff = 'test_'+suff+target_name)
+       
+        # Obtain prediction with SFS model 
+        try:
+            s_test = model.score(X_test_fs, y_test)
+            print('Score (trainvalid): ',s_trainvalid)
+            print('Score (test): ',s_test)
+        except:
+            pass
+      
