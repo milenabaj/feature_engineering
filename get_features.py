@@ -404,22 +404,20 @@ if test_df is not None:
 # =====================================================================   #
 # Feature selection for trainvalid and test
 # =====================================================================   # 
-# SFS
+# Out dir for FS
+out_dir = '{0}/feature_selection_{1}'.format(out_dir_base, target_name)
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+    
 model_names = ['random_forest']
-
 for model_name in model_names:
     
     # Create dir for this model
-    out_dir = '{0}/{1}'.format(out_dir_base, model_name)
+    out_dir = '{0}/{1}'.format(out_dir, model_name)
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
     
-    # Out dir for FS
-    out_dir_fs = '{0}/feature_selection_{1}'.format(out_dir, target_name)
-    if not os.path.exists(out_dir_fs):
-        os.makedirs(out_dir_fs)
-    
-    out_dir_plots_fs = '{0}/plots_fs'.format(out_dir_fs)
+    out_dir_plots_fs = '{0}/plots_fs'.format(out_dir)
     if not os.path.exists(out_dir_plots_fs):
         os.makedirs(out_dir_plots_fs)
 
@@ -429,13 +427,13 @@ for model_name in model_names:
                                                                                valid_indices = X_valid_indices, 
                                                                                reg_model = True, 
                                                                                target_name = target_name,
-                                                                               out_dir =  out_dir_fs, 
+                                                                               out_dir =  out_dir, 
                                                                                outfile_suff = 'trainvalid_' + suff + '_'+target_name, 
                                                                                recreate = recreate_fs)
     
     # Write json file
     json_feats_file_1 = 'json/selected_features_{0}_route-{0}_GM_trip-{1}_sensors-{2}_model-{3}.json'.format(drd_veh, routes_string, suff, model_name)  
-    json_feats_file_2 = json_feats_file_1.replace('json/', out_dir)
+    json_feats_file_2 = json_feats_file_1.replace('json/', out_dir+'/')
     for f_name in [json_feats_file_1, json_feats_file_2]:
         f =  open(f_name, "w") 
         sel_feat_data = {"features":sel_feature_names}
@@ -484,7 +482,7 @@ for model_name in model_names:
     
     # Do FS (only selection will be done and output create)
     X_test_fs, sel_feature_names, _ = find_optimal_subset(X_test_fe, y_test, reg_model = True, target_name = target_name, sel_features_names =  sel_feature_names,
-                                                                 out_dir = out_dir_fs, outfile_suff = 'test_' + suff + '_'+target_name, recreate = recreate_fs)
+                                                                 out_dir = out_dir, outfile_suff = 'test_' + suff + '_'+target_name, recreate = recreate_fs)
 
     print('Number of selected features is:{0}'.format(n_sel_features))
     
