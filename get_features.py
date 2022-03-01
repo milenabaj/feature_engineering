@@ -439,6 +439,14 @@ for model_name in model_names:
         sel_feat_data = {"features":sel_feature_names}
         json.dump(sel_feat_data, f)    
         f.close()
+        
+    # Write feature info into a tex file
+    tex_feats_file = json_feats_file_2.replace('json','tex')
+    sel_feat_data.to_latex(index=False))
+    
+    sel_feat_data.to_latex(tex_feats_file, columns = feats.columns, index = False, 
+                    float_format = lambda x: '%.2e' % x, label = 'table:selected_features',  
+                    header=[format_col(col) for col in feats.columns], escape=False)
     
     # Print selected features
     n_sel_features = len(sel_feature_names) 
@@ -462,9 +470,12 @@ for model_name in model_names:
         
     # Save the best model, its parameters and predictions
     model_path = '{0}/best_model_{1}.pickle'.format(out_dir, model_name)
-    with open(model_path, 'wb') as handle:
-        pickle.dump(model, handle, protocol=4)
-        print('Wrote best model to: {0}'.format(model_path))
+    if not recreate_fs and sys.path.exists(model_path):
+        model = pickle.load(open(model_path, 'rb'))
+    else:
+        with open(model_path, 'wb') as handle:
+            pickle.dump(model, handle, protocol=4)
+            print('Wrote best model to: {0}'.format(model_path))
     
 
    # =====================================================================   #
