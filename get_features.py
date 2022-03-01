@@ -442,6 +442,7 @@ for model_name in model_names:
         
     # Write feature info into a tex file
     tex_feats_file = json_feats_file_2.replace('json','tex')
+    sel_feat_data = pd.DataFrame(sel_feat_data)
     sel_feat_data.to_latex(tex_feats_file)
     
     #sel_feat_data.to_latex(tex_feats_file, columns = feats.columns, index = False, 
@@ -471,7 +472,8 @@ for model_name in model_names:
     # Save the best model, its parameters and predictions
     model_path = '{0}/best_model_{1}.pickle'.format(out_dir, model_name)
     if not recreate_fs and sys.path.exists(model_path):
-        model = pickle.load(open(model_path, 'rb'))
+        with open(model_path, 'rb') as f:
+            model = pickle.load(f)
     else:
         with open(model_path, 'wb') as handle:
             pickle.dump(model, handle, protocol=4)
