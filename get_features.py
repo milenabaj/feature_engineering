@@ -471,7 +471,7 @@ for model_name in model_names:
         
     # Save the best model, its parameters and predictions
     model_path = '{0}/best_model_{1}.pickle'.format(out_dir, model_name)
-    if not recreate_fs and sys.path.exists(model_path):
+    if not recreate_fs and os.path.exists(model_path):
         with open(model_path, 'rb') as f:
             model = pickle.load(f)
     else:
