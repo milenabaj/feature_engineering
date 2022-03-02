@@ -421,7 +421,7 @@ for model_name in model_names:
 
             
     # Do FS
-    X_trainvalid_fs, sel_feature_names, feature_selector = find_optimal_subset(X_trainvalid_fe, y_trainvalid, 
+    trainvalid_fs, sel_feature_names, feature_selector = find_optimal_subset(X_trainvalid_fe, y_trainvalid, 
                                                                                valid_indices = X_valid_indices, 
                                                                                reg_model = True, 
                                                                                target_name = target_name,
@@ -463,6 +463,9 @@ for model_name in model_names:
             # add correlation plots
             #plot_correlation(trainvalid_df, method = 'pearson', out_dir = out_dir_plots_fs, suff = 'trainvalid_'+suff+target_name)
    
+    X_trainvalid_fs = trainvalid_fs[sel_feature_names]
+    y_trainvalid = trainvalid_fs[target_name]
+    
     # Fit on full trainvalid
     if feature_selector:
         model = feature_selector.estimator
@@ -504,7 +507,7 @@ for model_name in model_names:
     
     
     # Do FS (only selection will be done and output created)
-    X_test_fs, sel_feature_names, _ = find_optimal_subset(X_test_fe, y_test, reg_model = True, target_name = target_name, sel_features_names =  sel_feature_names,
+    test_fs, sel_feature_names, _ = find_optimal_subset(X_test_fe, y_test, reg_model = True, target_name = target_name, sel_features_names =  sel_feature_names,
                                                                  out_dir = out_dir, outfile_suff = 'test_' + suff + '_'+target_name, recreate = recreate_fs)
 
     print('Number of selected features is:{0}'.format(n_sel_features))
@@ -515,6 +518,9 @@ for model_name in model_names:
         if make_plots:
             get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fs, suff = 'test_'+suff, norm = False)
    
+    X_test_fs = test_fs[sel_feature_names]
+    y_test = test_fs[target_name]
+    
     # Obtain prediction with SFS model 
     try:
         s_test = model.score(X_test_fs, y_test)
