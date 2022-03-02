@@ -137,12 +137,10 @@ else:
    for route in routes:
        trips  =  trips + route_data[route]['GM_trips']
 
-
 # DRD type  
 if not aran and not p79 and not viafrik:
     print('Set p79 or aran or both to True')
     sys.exit(0)
- 
 
 # Input directories
 drd_veh = ''     
@@ -477,13 +475,14 @@ for model_name in model_names:
     if not recreate_fs and os.path.exists(model_path):
         with open(model_path, 'rb') as f:
             model = pickle.load(f)
+        params = model.get_params()
     else:
         with open(model_path, 'wb') as handle:
             pickle.dump(model, handle, protocol=4)
             print('Wrote best model to: {0}'.format(model_path))
             
         params = model.get_params()
-        params = pd.DataFrame.from_dict(params)
+        params = pd.DataFrame([params]).T
         
         params_path = model_path.replace('best_model','best_model_parameters').replace('.pickle','.tex')
         params.to_latex(params_path)  
