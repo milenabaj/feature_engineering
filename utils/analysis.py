@@ -309,14 +309,14 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
     
         # Feature search
         tscv = TimeSeriesSplit(n_splits=10)
-        fmax = 10 #max f to consider
+        fmax = 2 #max f to consider
         if not fmax:
             fmax = X.shape[1]-1
             
         if reg_model:
             f=(1,fmax) 
-            #model = RandomForestRegressor(n_trees, min_impurity_decrease=0.015, max_depth = 10, min_samples_leaf = 2)
-            model = KNeighborsRegressor(n_neighbors=500)
+            model = RandomForestRegressor(n_trees, min_impurity_decrease=0.015, min_samples_leaf = 5)
+            #model = KNeighborsRegressor(n_neighbors=500)
             if valid_indices is not None:
                 print('Using a valid subset')
                 valid_subset = PredefinedHoldoutSplit(valid_indices)
@@ -324,7 +324,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
                                                                                forward=True,
                                                                                verbose=4,
                                                                                scoring='r2',
-                                                                               cv=20)
+                                                                               cv=10)
                                                                                #cv = valid_subset)
                                                                               
                              
