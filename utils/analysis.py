@@ -309,7 +309,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
     
         # Feature search
         tscv = TimeSeriesSplit(n_splits=10)
-        fmax = 2 #max f to consider
+        fmax = 10 #max f to consider
         if not fmax:
             fmax = X.shape[1]-1
             
@@ -324,8 +324,19 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
                                                                                forward=True,
                                                                                verbose=4,
                                                                                scoring='r2',
-                                                                               cv=10)
+                                                                               cv=5)
                                                                                #cv = valid_subset)
+                                                                               
+                pipe = Pipeline([('sfs', feature_selector), ('model', model)])
+                param_grid = [ {'sfs__k_features': [1, 3, 5, 10, 20], 'sfs__estimator__n_neighbors': [1, 3, 5, 10, 20, 50]}]
+                
+                gs = GridSearchCV(estimator=pipe, 
+                  param_grid=param_grid, 
+                  scoring='r2', 
+                  n_jobs=-1, 
+                  cv=5,
+                  refit=False)
+                                                              
             else:
                 print('Using kfold')
                 feature_selector = SequentialFeatureSelector(model, n_jobs=-1, k_features=f,
@@ -333,6 +344,9 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
                                                                                verbose=4,
                                                                                scoring='r2',
                                                                                cv=tscv)
+                
+                    
+
              
         else:
             f=(1,fmax)
