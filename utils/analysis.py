@@ -317,17 +317,17 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
             if valid_indices is not None:
                 print('Using a valid subset')
                 valid_subset = PredefinedHoldoutSplit(valid_indices)
-                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, min_impurity_decrease=2e-2,  min_samples_leaf = 2), 
+                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, min_impurity_decrease=0.001,  min_samples_leaf = 2), 
                                                                                n_jobs=-1,
                                                                                k_features=f,
                                                                                forward=True,
                                                                                verbose=4,
                                                                                scoring='r2',
-                                                                               cv=10)
+                                                                               cv=20)
                                                                                #cv = valid_subset)
-            else:
+            else:git 
                 print('Using kfold')
-                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, min_impurity_decrease=2e-2,  min_samples_leaf = 2), 
+                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, min_impurity_decrease=0.01,  min_samples_leaf = 2), 
                                                                                n_jobs=-1,
                                                                                k_features=f,
                                                                                forward=True,
