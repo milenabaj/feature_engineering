@@ -309,7 +309,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
     
         # Feature search
         tscv = TimeSeriesSplit(n_splits=10)
-        fmax = 10 #max f to consider
+        fmax = 30 #max f to consider
         if not fmax:
             fmax = X.shape[1]-1
             
@@ -336,7 +336,16 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
                   n_jobs=-1, 
                   cv=5,
                   refit=False)
-                                                              
+                
+                gs = gs.fit(X_train, y_train)
+                for i in range(len(gs.cv_results_['params'])):
+                    print(gs.cv_results_['params'][i], 'test acc.:', gs.cv_results_['mean_test_score'][i])
+                    
+                print("Best parameters via GridSearch", gs.best_params_)
+                
+                feature_selector = gs.best_estimator_.steps[0][1]
+                
+                             
             else:
                 print('Using kfold')
                 feature_selector = SequentialFeatureSelector(model, n_jobs=-1, k_features=f,
@@ -369,7 +378,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
                    cv=tscv)
         
         
-        features = feature_selector.fit(X,y)
+        #features = feature_selector.fit(X,y)
         sel_features_names = list(feature_selector.k_feature_names_)
         print('Selected features ', sel_features_names)
         
