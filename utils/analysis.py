@@ -308,7 +308,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
     
         # Feature search
         tscv = TimeSeriesSplit(n_splits=5)
-        fmax = 30 #max f to consider
+        fmax = 10 #max f to consider
         if not fmax:
             fmax = X.shape[1]-1
             
@@ -317,20 +317,20 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
             if valid_indices is not None:
                 print('Using a valid subset')
                 valid_subset = PredefinedHoldoutSplit(valid_indices)
-                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, min_impurity_decrease=1e-2), 
+                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, min_impurity_decrease=1e-1), 
                                                                                n_jobs=-1,
                                                                                k_features=f,
                                                                                forward=True,
-                                                                               verbose=2,
+                                                                               verbose=4,
                                                                                scoring='r2',
                                                                                cv = valid_subset)
             else:
                 print('Using kfold')
-                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, min_impurity_decrease=1e-2), 
+                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, min_impurity_decrease=1e-1), 
                                                                                n_jobs=-1,
                                                                                k_features=f,
                                                                                forward=True,
-                                                                               verbose=2,
+                                                                               verbose=4,
                                                                                scoring='r2',
                                                                                cv=tscv)
              
