@@ -316,7 +316,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
         if reg_model:
             f=(1,fmax) 
             #model = RandomForestRegressor(n_trees, min_impurity_decrease=0.015, max_depth = 10, min_samples_leaf = 2)
-            model = KNeighborsRegressor(n_neighbors=1)
+            model = KNeighborsRegressor(n_neighbors=10)
             if valid_indices is not None:
                 print('Using a valid subset')
                 valid_subset = PredefinedHoldoutSplit(valid_indices)
@@ -324,7 +324,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
                                                                                forward=True,
                                                                                verbose=4,
                                                                                scoring='r2',
-                                                                               cv=5)
+                                                                               cv=10)
                                                                                #cv = valid_subset)
                                                                               
                              
@@ -359,7 +359,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
                    scoring=make_scorer(f1_score, average='macro'),
                    cv=tscv)
         
-        
+        '''
         pipe = Pipeline([('sfs', feature_selector), ('model', model)])
         param_grid = [ {'sfs__k_features': [1, 3, 5, 10, 20], 'sfs__estimator__n_neighbors': [1, 3, 5, 10, 20, 50]}]
         
@@ -375,12 +375,12 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
             print(gs.cv_results_['params'][i], 'test acc.:', gs.cv_results_['mean_test_score'][i])
             
         print("Best parameters via GridSearch", gs.best_params_)
+        '''
         
-        
-        feature_selector = gs.estimator[0]
-        
+        #feature_selector = gs.estimator[0]
+        # pipe.steps[0]?
                 
-        #feature_selector.fit(X,y)
+        feature_selector.fit(X,y)
         sel_features_names = list(feature_selector.k_feature_names_)
         print('Selected features ', sel_features_names)
         
