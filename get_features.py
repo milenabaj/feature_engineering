@@ -463,14 +463,14 @@ for model_name in model_names:
             # add correlation plots
             #plot_correlation(trainvalid_df, method = 'pearson', out_dir = out_dir_plots_fs, suff = 'trainvalid_'+suff+target_name)
    
-    # Evaluate on full trainvalid
+    # Fit on full trainvalid
     if feature_selector:
         model = feature_selector.estimator
         model.fit(X_trainvalid_fs, y_trainvalid)
         s_trainvalid = model.score(X_trainvalid_fs, y_trainvalid)
         print('Score (trainvalid): ',s_trainvalid)
         
-    # Save the best model, its parameters and predictions
+    # Load or save the best model, its parameters and predictions
     model_path = '{0}/best_model_{1}.pickle'.format(out_dir, model_name)
     if not recreate_fs and os.path.exists(model_path):
         with open(model_path, 'rb') as f:
@@ -503,7 +503,7 @@ for model_name in model_names:
     print('Number of selected features is:{0}'.format(n_sel_features))
     
     
-    # Do FS (only selection will be done and output create)
+    # Do FS (only selection will be done and output created)
     X_test_fs, sel_feature_names, _ = find_optimal_subset(X_test_fe, y_test, reg_model = True, target_name = target_name, sel_features_names =  sel_feature_names,
                                                                  out_dir = out_dir, outfile_suff = 'test_' + suff + '_'+target_name, recreate = recreate_fs)
 
@@ -522,4 +522,19 @@ for model_name in model_names:
         print('Score (test): ',s_test)
     except:
         pass
+    
+   # =====================================================================   #
+   # Check Performance
+   # =====================================================================   # 
+    y_trainvalid_pred = model.predict(X_trainvalid_fs)
+    y_test_pred = model.predict(X_test_fs)
+   
+    # Plot train regression
+    plot_regression_true_vs_pred(y_trainvalid, y_trainvalid_pred, title='Train: {0}'.format(model_title),
+                                 out_dir = out_dir_plots_fs, var_label = target_name, filename = '{0}_train'.format(model))
+  
+    # Plot test regression
+    plot_regression_true_vs_pred(y_test, y_test_pred, title= 'Test: {0}'.format(model_title),
+                                     out_dir = out_dir_plots_fs, var_label = target_name, filename = '{0}_test'.format(model))
+     
       
