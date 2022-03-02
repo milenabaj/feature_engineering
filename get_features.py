@@ -428,7 +428,7 @@ for model_name in model_names:
                                                                                out_dir =  out_dir, 
                                                                                outfile_suff = 'trainvalid_' + suff + '_'+target_name, 
                                                                                recreate = recreate_fs)
-    
+    sys.exit(0)
     # Write json file
     json_feats_file_1 = 'json/selected_features_{0}_route-{0}_GM_trip-{1}_sensors-{2}_model-{3}.json'.format(drd_veh, routes_string, suff, model_name)  
     json_feats_file_2 = json_feats_file_1.replace('json/', out_dir+'/')

@@ -343,7 +343,8 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
                     
                 print("Best parameters via GridSearch", gs.best_params_)
                 
-                feature_selector = gs.best_estimator_.steps[0][1]
+                return gs, None, None
+                #feature_selector = gs.best_estimator_.steps[0][1]
                 
                              
             else:
