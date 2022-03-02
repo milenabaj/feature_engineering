@@ -269,7 +269,7 @@ def extract_inner_df(df, feats = ['GM.obd.spd_veh.value','GM.acc.xyz.x', 'GM.acc
     return
 
     
-def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, reg_model = True, bins = None, target_name = 'target', sel_features_names = None,
+def find_optimal_subset(X, y, valid_indices = None, n_trees=2000, fmax = None, reg_model = True, bins = None, target_name = 'target', sel_features_names = None,
                         out_dir = '.', outfile_suff = 'feature_selection', recreate = False,  save_output = True):
         
   
@@ -309,13 +309,13 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
     
         # Feature search
         tscv = TimeSeriesSplit(n_splits=10)
-        fmax = 2 #max f to consider
+        fmax = 30 #max f to consider
         if not fmax:
             fmax = X.shape[1]-1
             
         if reg_model:
             f=(1,fmax) 
-            model = RandomForestRegressor(n_trees, min_impurity_decrease=1e-2, min_samples_leaf = 3)
+            model = RandomForestRegressor(n_trees, min_impurity_decrease=1e-2, min_samples_leaf = 2)
             #model = KNeighborsRegressor(n_neighbors=500)
             if valid_indices is not None:
                 print('Using a valid subset')
