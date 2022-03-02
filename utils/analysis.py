@@ -268,7 +268,7 @@ def extract_inner_df(df, feats = ['GM.obd.spd_veh.value','GM.acc.xyz.x', 'GM.acc
     return
 
     
-def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, reg_model = True, bins = None, target_name = 'target', sel_features_names = None,
+def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, reg_model = True, bins = None, target_name = 'target', sel_features_names = None,
                         out_dir = '.', outfile_suff = 'feature_selection', recreate = False,  save_output = True):
         
   
@@ -317,13 +317,13 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
             if valid_indices is not None:
                 print('Using a valid subset')
                 valid_subset = PredefinedHoldoutSplit(valid_indices)
-                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, min_impurity_decrease=1e-2,  min_samples_leaf = 3), 
+                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, min_impurity_decrease=1e-2,  min_samples_leaf = 2), 
                                                                                n_jobs=-1,
                                                                                k_features=f,
                                                                                forward=True,
                                                                                verbose=4,
                                                                                scoring='r2',
-                                                                               cv=10)
+                                                                               cv=20)
                                                                                #cv = valid_subset)
             else:
                 print('Using kfold')
