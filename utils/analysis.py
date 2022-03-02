@@ -359,7 +359,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
                    scoring=make_scorer(f1_score, average='macro'),
                    cv=tscv)
         
-        '''
+        
         pipe = Pipeline([('sfs', feature_selector), ('model', model)])
         param_grid = [ {'sfs__k_features': [1, 3, 5, 10, 20], 'sfs__estimator__n_neighbors': [1, 3, 5, 10, 20, 50]}]
         
@@ -378,9 +378,9 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
         
         
         feature_selector = gs.estimator[0]
-        '''        
+        
                 
-        feature_selector.fit(X,y)
+        #feature_selector.fit(X,y)
         sel_features_names = list(feature_selector.k_feature_names_)
         print('Selected features ', sel_features_names)
         
