@@ -308,7 +308,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
     
         # Feature search
         tscv = TimeSeriesSplit(n_splits=5)
-        fmax = 10 #max f to consider
+        fmax = 2 #max f to consider
         if not fmax:
             fmax = X.shape[1]-1
             
@@ -322,7 +322,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
                                                                                k_features=f,
                                                                                forward=True,
                                                                                verbose=4,
-                                                                               scoring='r2',
+                                                                               scoring='r2', min_samples_leaf = 2,
                                                                                cv=10)
                                                                                #cv = valid_subset)
             else:
@@ -332,7 +332,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
                                                                                k_features=f,
                                                                                forward=True,
                                                                                verbose=4,
-                                                                               scoring='r2',
+                                                                               scoring='r2', min_samples_leaf = 2,
                                                                                cv=tscv)
              
         else:
