@@ -323,7 +323,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
                                                                                forward=True,
                                                                                verbose=4,
                                                                                scoring='r2',
-                                                                               cv=5)
+                                                                               cv=10)
                                                                                #cv = valid_subset)
             else:
                 print('Using kfold')
