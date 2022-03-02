@@ -317,7 +317,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
             if valid_indices is not None:
                 print('Using a valid subset')
                 valid_subset = PredefinedHoldoutSplit(valid_indices)
-                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, min_impurity_decrease=1e-1,  min_samples_leaf = 2), 
+                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees,min_samples_leaf = 2), 
                                                                                n_jobs=-1,
                                                                                k_features=f,
                                                                                forward=True,
@@ -327,7 +327,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
                                                                                #cv = valid_subset)
             else:
                 print('Using kfold')
-                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, min_impurity_decrease=1e-1,  min_samples_leaf = 2), 
+                feature_selector = SequentialFeatureSelector(RandomForestRegressor(n_trees, min_samples_leaf = 2), 
                                                                                n_jobs=-1,
                                                                                k_features=f,
                                                                                forward=True,
