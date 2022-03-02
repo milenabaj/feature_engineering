@@ -8,7 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tsfel
 from mlxtend.feature_selection import SequentialFeatureSelector
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, KNeighborsRegressor
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegresso
+from sklearn.neighbors import  KNeighborsRegressor
 from sklearn.metrics import f1_score
 from sklearn.metrics import make_scorer, confusion_matrix
 from sklearn.metrics import classification_report, plot_confusion_matrix
