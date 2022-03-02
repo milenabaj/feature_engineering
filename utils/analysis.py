@@ -337,7 +337,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
                   cv=5,
                   refit=False)
                 
-                gs = gs.fit(X_train, y_train)
+                gs = gs.fit(X, y)
                 for i in range(len(gs.cv_results_['params'])):
                     print(gs.cv_results_['params'][i], 'test acc.:', gs.cv_results_['mean_test_score'][i])
                     
