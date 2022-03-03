@@ -12,6 +12,9 @@ python -i get_features.py --in_dir /dtu-compute/lira/ml_data/data --target IRI_m
 * To run for a specific route:  
 python -i get_features.py --in_dir /dtu-compute/lira/ml_data/data --target IRI_mean --load_add_sensors --p79 --aran --route M13_VH
 
+* To run for multiple routes: 
+python -i get_features.py --in_dir /dtu-compute/lira/ml_data/data --target IRI_mean --load_add_sensors --p79 --aran --route CPH1_VH CPH1_HH
+
 * To recreate the feature selection step only, run:  
 python -i get_features.py --in_dir /dtu-compute/lira/ml_data/data --target IRI_mean --load_add_sensors --p79 --aran --recreate_fs
 
