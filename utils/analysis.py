@@ -315,7 +315,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=2000, fmax = None, r
             
         if reg_model:
             f=(1,fmax) 
-            model = RandomForestRegressor(n_trees, min_impurity_decrease=1e-2, min_samples_leaf = 2)
+            model = RandomForestRegressor(n_trees, min_impurity_decrease=0.015, min_samples_leaf = 3)
             #model = KNeighborsRegressor(n_neighbors=500)
             if valid_indices is not None:
                 print('Using a valid subset')
