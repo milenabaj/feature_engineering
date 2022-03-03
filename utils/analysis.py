@@ -279,19 +279,19 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=500, fmax = None, re
     else:
         x_filename = '{0}/{1}_bins-{2}_classification.pickle'.format(out_dir, GM_trip_id, '-'.join([str(b) for b in bins]))
         
+        
     # Load files if they exists
     if not recreate and os.path.exists(x_filename):
         with open(x_filename, 'rb') as handle:
-            Xy_filt = pickle.load(handle)
+            X_filt = pickle.load(handle)
         
-        X_filt = Xy_filt.drop([target_name],axis=1) 
-        y = Xy_filt[target_name]
-        
-        sel_features_names = list(X_filt.columns)
+
+        sel_features_names = list(X_filt.drop([target_name],axis=1).columns)
         
         feature_selector = None
-        
+
         print('Files loaded.')
+    
     
     
     # Create files if they do not exist
