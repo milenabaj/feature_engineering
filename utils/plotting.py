@@ -324,21 +324,19 @@ def plot_DRD_lasers(data, laser_type='Prof'):
     return
 
 def scatter_plots(data, var = 'GM_Acceleration_z_segment', targets = ['DRD_IRI5', 'DRD_IRI21','DRD_IRI_mean'], out_dir = '', plot_suff=''):
-    features = [c for c in data.columns if var+'_' in c]
     for target in targets:
-        for feature in features:
-            fig,ax=plt.subplots()
-            # plt.title('{0} DRD data: {1}'.format(data_string,plot_title))
-            sns.regplot(data[feature], data[target], fit_reg = True)
-            ax.set_xlabel(feature)
-            ax.set_ylabel(target)
-            r, p = pearsonr(data[feature], data[target])
-            extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
-            ax.legend([extra],['r={:f}, p={:f}'.format(r,p)])
-            path = '{0}/correlation{1}.eps'.format(out_dir,  plot_suff)
-            plt.savefig(path)
-            print('Saved: {0}'.format(path))
-            #plt.show()
+        fig,ax=plt.subplots()
+        # plt.title('{0} DRD data: {1}'.format(data_string,plot_title))
+        sns.regplot(data[var], data[target], fit_reg = True)
+        ax.set_xlabel(var)
+        ax.set_ylabel(target)
+        r, p = pearsonr(data[var], data[target])
+        extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+        ax.legend([extra],['r={:f}, p={:f}'.format(r,p)])
+        path = '{0}/correlation{1}.eps'.format(out_dir,  plot_suff)
+        plt.savefig(path)
+        print('Saved: {0}'.format(path))
+        #plt.show()
     return
 
 def pair_plot(data, input_vars = ['GM_Acceleration_z_segment','GM_Speed_segment'], targets = ['DRD_IRI5', 'DRD_IRI21','DRD_IRI_mean'],data_string='', plot_title=''):
