@@ -337,6 +337,7 @@ def scatter_plots(data, var = 'GM_Acceleration_z_segment', targets = ['DRD_IRI5'
             ax.legend([extra],['r={:f}, p={:f}'.format(r,p)])
             path = '{0}/correlation{1}.eps'.format(out_dir,  plot_suff)
             plt.savefig(path)
+            print('Saved: {0}'.format(path))
             #plt.show()
     return
 
