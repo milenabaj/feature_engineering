@@ -11,6 +11,8 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from utils.analysis import mean_absolute_percentage_error
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator,LogFormatter)
 from sklearn.model_selection import  TimeSeriesSplit, GridSearchCV
+from scipy.stats import pearsonr
+from matplotlib.patches import Rectangle
 
 def plot_geolocation(longitudes, latitudes, name = 'map', out_dir = '.', plot_firstlast=0, plot_html_map = True, title=None, full_filename = None, preload = False):
     """
@@ -321,16 +323,19 @@ def plot_DRD_lasers(data, laser_type='Prof'):
     plt.show()
     return
 
-def scatter_plots(data, var = 'GM_Acceleration_z_segment', targets = ['DRD_IRI5', 'DRD_IRI21','DRD_IRI_mean'],path='plot.eps'):
+def scatter_plots(data, var = 'GM_Acceleration_z_segment', targets = ['DRD_IRI5', 'DRD_IRI21','DRD_IRI_mean'], out_dir = '', plot_suff=''):
     features = [c for c in data.columns if var+'_' in c]
     for target in targets:
         for feature in features:
             fig,ax=plt.subplots()
             # plt.title('{0} DRD data: {1}'.format(data_string,plot_title))
-            sns.regplot(data[feature], data[target])
+            sns.regplot(data[feature], data[target], fit_reg = True)
             ax.set_xlabel(feature)
             ax.set_ylabel(target)
-            plt.legend()
+            r, p = pearsonr(data[feature], data[target])
+            extra = Rectangle((0, 0), 1, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+            ax.legend([extra],['r={:f}, p={:f}'.format(r,p)])
+            path = '{0}/correlation{1}.eps'.format(out_dir,  plot_suff)
             plt.savefig(path)
             #plt.show()
     return

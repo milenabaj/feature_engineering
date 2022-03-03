@@ -528,6 +528,7 @@ for model_name in model_names:
         print('Score (test): ',s_test)
     except:
         pass
+
     
    # =====================================================================   #
    # Check Performance
@@ -538,9 +539,13 @@ for model_name in model_names:
     # Plot train regression
     plot_regression_true_vs_pred(y_trainvalid, y_trainvalid_pred, title='Train: {0}'.format(model_name),
                                  out_dir = out_dir_plots_fs, var_label = target_name, filename = '{0}_train'.format(model_name))
+    
+    for var in sel_features:
+        scatter_plots(trainvalid_fs, var = var, targets = [target_name], out_dir = out_dir_plots_fs,  plot_suff='_'+var+'_train')
   
     # Plot test regression
     plot_regression_true_vs_pred(y_test, y_test_pred, title= 'Test: {0}'.format(model_name),
                                      out_dir = out_dir_plots_fs, var_label = target_name, filename = '{0}_test'.format(model_name))
      
-      
+    for var in sel_features:
+        scatter_plots(test_fs, var = var, targets = [target_name], out_dir = out_dir_plots_fs,  plot_suff='_'+var+'_train')
