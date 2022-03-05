@@ -45,7 +45,7 @@ parser.add_argument('--in_dir', default= "data", help='Input directory base.')
 parser.add_argument('--recreate_fe', action="store_true", help = 'Recreate fe files, even if present. If False and the files are present, the data will be loaded from them.')
 parser.add_argument('--recreate_fs', action="store_true", help = 'Recreate fs files, even if present. If False and the files are present, the data will be loaded from them.')
 
-parser.add_argument('--mode',  default = 'trainvalid_test', help = 'If you want to use the the loaded data for feature extraction and selection, use Choose between: trainvalid and trainvalidkfold. If you also want to prepare a part of it as a test dataset, use: trainvalid_test or trainvalidkfold_test. ')    
+parser.add_argument('--mode',  default = 'trainvalidkfold_test', help = 'If you want to use the the loaded data for feature extraction and selection, use Choose between: trainvalid and trainvalidkfold. If you also want to prepare a part of it as a test dataset, use: trainvalid_test or trainvalidkfold_test. ')    
 parser.add_argument('--dev_mode', action="store_true", help = 'Run on a subset of lines only. Use for debugging purposes.')
 parser.add_argument('--predict_mode',  action="store_true", help = 'Prediction mode - use if you want to treat all loaded data as test data or in production mode. The code will load a list of selected features and extract only them.')    
 parser.add_argument('--no_filter_speed', action="store_true", help = 'Do not filter speed.')
@@ -445,7 +445,7 @@ for model_name in model_names:
     sel_feat_data.to_latex(tex_feats_file)
     
     csv_feats_file = json_feats_file_2.replace('.json','.csv')
-    sel_feat_data.to_latex(csv_feats_file)
+    sel_feat_data.to_csv(csv_feats_file)
     #sel_feat_data.to_latex(tex_feats_file, columns = feats.columns, index = False, 
     #                float_format = lambda x: '%.2e' % x, label = 'table:selected_features',  
     #                header=[format_col(col) for col in feats.columns], escape=False)
@@ -550,3 +550,14 @@ for model_name in model_names:
      
     for var in sel_feature_names:
         scatter_plots(test_fs, var = var, targets = [target_name], out_dir = out_dir_plots_fs,  plot_suff='_'+var+'_train')
+        
+    s = pd.DataFrame(X_trainvalid_fe.columns)
+    s.index +=1
+    
+    f = '{0}/trainvalid_fe.tex'.format(out_dir)
+    sourceFile = open(f, 'w')
+    print(s.to_latex(), file = sourceFile)
+    sourceFile.close()
+    #print(s.to_latex())
+    
+    
