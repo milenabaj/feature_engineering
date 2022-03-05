@@ -228,7 +228,6 @@ print('Loaded files: ',filenames)
          
 # Data            
 df = pd.concat(dfs)  #without and with speed filter = 3300, 33.1 km
-sys.exit(0)
 
 # Prepare data
 non_GM_cols = [col for col in  df.columns if not col.startswith('GM.')]
@@ -287,6 +286,8 @@ if (trainvalid_df is not None) and (not only_test):
         
         # Do feature extraction 
         keep_cols = trainvalid_df.columns.to_list()
+        print(trainvalid_df.shape)
+        sys.exit(0)
         trainvalid_df, fe_filename = feature_extraction(trainvalid_df, keep_cols = keep_cols, feats = input_feats, 
                                                         out_dir = out_dir_base, 
                                                    file_suff = routes_string + suff +'_trainvalid', 
