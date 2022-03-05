@@ -266,23 +266,24 @@ else:
 # Feature extraction for trainvalid
 # =====================================================================   # 
 if (trainvalid_df is not None) and (not only_test):
-        to_lengths_dict = {}
-        for feat in input_feats:
-            a =  trainvalid_df[feat].apply(lambda seq: seq.shape[0])
-            l = int(a.quantile(0.90))
-            to_lengths_dict[feat] = l
-            #print(to_lengths_dict)
-            #to_lengths_dict = {'GM.acc.xyz.z': 369, 'GM.obd.spd_veh.value':309} # this was used for motorway
-            
+         
+        # Resample
+        if resample:
+            to_lengths_dict = {}
+            for feat in input_feats:
+                a =  trainvalid_df[feat].apply(lambda seq: seq.shape[0])
+                l = int(a.quantile(0.90))
+                to_lengths_dict[feat] = l
+                #print(to_lengths_dict)
+                #to_lengths_dict = {'GM.acc.xyz.z': 369, 'GM.obd.spd_veh.value':309} # this was used for motorway
+       
+            trainvalid_df, feats_resampled = resample_df(trainvalid_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
+        
         # Plot trainvalid
         for var in vars_to_plot:
             x = trainvalid_df[var]
             get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = '_trainvalid')
         
-        
-        # Resample
-        if resample:
-            trainvalid_df, feats_resampled = resample_df(trainvalid_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
         
         # Do feature extraction 
         keep_cols = trainvalid_df.columns.to_list()
