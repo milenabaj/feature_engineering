@@ -336,7 +336,7 @@ def find_optimal_subset(X, y, valid_indices = None, n_trees=1000, fmax = None, r
                                                                                forward=True,
                                                                                verbose=4,
                                                                                scoring='r2',
-                                                                               cv=10)
+                                                                               cv=5)
                 
                 
         else:
