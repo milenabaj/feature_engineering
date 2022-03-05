@@ -228,6 +228,7 @@ print('Loaded files: ',filenames)
          
 # Data            
 df = pd.concat(dfs)  #without and with speed filter = 3300, 33.1 km
+sys.exit(0)
 
 # Prepare data
 non_GM_cols = [col for col in  df.columns if not col.startswith('GM.')]
