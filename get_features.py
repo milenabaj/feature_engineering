@@ -287,8 +287,6 @@ if (trainvalid_df is not None) and (not only_test):
         
         # Do feature extraction 
         keep_cols = trainvalid_df.columns.to_list()
-        print(trainvalid_df.shape)
-        sys.exit(0)
         trainvalid_df, fe_filename = feature_extraction(trainvalid_df, keep_cols = keep_cols, feats = input_feats, 
                                                         out_dir = out_dir_base, 
                                                    file_suff = routes_string + suff +'_trainvalid', 
@@ -350,21 +348,22 @@ if (trainvalid_df is not None) and (not only_test):
 # Feature extraction for test
 # =====================================================================   #  
 if test_df is not None:
-    to_lengths_dict = {}
-    for feat in input_feats:
-        a =  test_df[feat].apply(lambda seq: seq.shape[0])
-        l = int(a.quantile(0.90))
-        to_lengths_dict[feat] = l
         
+    # Resample
+    if resample:
+        to_lengths_dict = {}
+        for feat in input_feats:
+            a =  test_df[feat].apply(lambda seq: seq.shape[0])
+            l = int(a.quantile(0.90))
+            to_lengths_dict[feat] = l
+        test_df, feats_resampled = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
+    
     # Plot test
     for var in vars_to_plot:
         x = test_df[var]
         get_normalized_hist(x, var_name = var, out_dir = out_dir_plots_fe, suff = '_test')
     # Write some info
     
-    # Resample
-    if resample:
-        test_df, feats_resampled = resample_df(test_df, feats_to_resample = input_feats, to_lengths_dict = to_lengths_dict, window_size = window_size)
     
     # Do feature extraction 
     keep_cols = test_df.columns.to_list()
