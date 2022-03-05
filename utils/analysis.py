@@ -121,12 +121,14 @@ def clean_nans(df, col_nan_percent = 0.0001, exclude_cols = ['IRI_mean_end']):
         except:
             pass
         
-    cols_to_remove = get_nan_cols(df, nan_percent=col_nan_percent, exclude_cols = exclude_cols) 
+    #cols_to_remove = get_nan_cols(df, nan_percent=col_nan_percent, exclude_cols = exclude_cols) 
      
     # Drop
-    df.drop(columns=cols_to_remove,axis=1, inplace=True) # remove features with more than 1% nans
-    df.dropna(axis=0, inplace=True)   # drop rows with at least 1 nan
+    #df.drop(columns=cols_to_remove,axis=1, inplace=True) # remove features with more than 1% nans
+    #df.dropna(axis=0, inplace=True)   # drop rows with at least 1 nan
     
+    df.dropna(axis=1, inplace=True)   # drop rows with at least 1 nan
+     
     # Reset index
     df.reset_index(inplace=True, drop = True)
     return 
