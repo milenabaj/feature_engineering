@@ -22,6 +22,8 @@ import gc, os, sys, glob
 #=================================#
 # SETTINGS
 #=================================#
+dir_above = '/'.join(os.getcwd().split('/')[0:-1])
+
 # Script arguments
 parser = argparse.ArgumentParser(description='Please provide command line arguments.')
 
@@ -40,7 +42,7 @@ parser.add_argument('--use_add_sensors', action='store_true', help = 'Use additi
 parser.add_argument('--window_size', type=int, default=100)
 parser.add_argument('--step', type=int, default=10)
 
-parser.add_argument('--json_route', default= "json/routes.json", help='Json file with route information.')
+parser.add_argument('--json_route', "{0}/json/routes.json".format(dir_above), help='Json file with route information.')
 parser.add_argument('--in_dir', default= "data", help='Input directory base.')
 parser.add_argument('--recreate_fe', action="store_true", help = 'Recreate fe files, even if present. If False and the files are present, the data will be loaded from them.')
 parser.add_argument('--recreate_fs', action="store_true", help = 'Recreate fs files, even if present. If False and the files are present, the data will be loaded from them.')
