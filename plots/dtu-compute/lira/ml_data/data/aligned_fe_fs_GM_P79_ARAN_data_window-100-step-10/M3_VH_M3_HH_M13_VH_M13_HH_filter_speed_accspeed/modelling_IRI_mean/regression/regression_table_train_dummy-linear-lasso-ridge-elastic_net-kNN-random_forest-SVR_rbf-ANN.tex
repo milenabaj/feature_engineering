@@ -1,0 +1,19 @@
+\begin{table}
+\centering
+\label{table:iri_reg_pred}
+\begin{tabular}{lllllllll}
+\toprule
+ \textbf{Model} & \textbf{MAE} & \textbf{RMSE} & \textbf{MRE} & $\textbf{R^2}$ & \textbf{MAE (PCA)} & \textbf{RMSE (PCA)} & \textbf{MRE (PCA)} & \textbf{R2 (PCA)} \\
+\midrule
+          Dummy &         0.30 &          0.41 &         0.30 &           0.00 &               0.30 &                0.41 &               0.30 &              0.00 \\
+Multiple Linear &         0.17 &          0.23 &         0.18 &           0.68 &               0.17 &                0.23 &               0.18 &              0.68 \\
+          Lasso &         0.17 &          0.23 &         0.18 &           0.68 &               0.17 &                0.23 &               0.18 &              0.68 \\
+          Ridge &         0.17 &          0.23 &         0.17 &           0.67 &               0.17 &                0.23 &               0.17 &              0.67 \\
+    Elastic Net &         0.17 &          0.23 &         0.17 &           0.68 &               0.18 &                0.23 &               0.18 &              0.67 \\
+            Knn &         0.13 &          0.18 &         0.12 &           0.82 &               0.13 &                0.18 &               0.12 &              0.82 \\
+  Random Forest &         0.09 &          0.12 &         0.10 &           0.91 &               0.10 &                0.13 &               0.10 &              0.91 \\
+            SVR &         0.16 &          0.22 &         0.15 &           0.71 &               0.16 &                0.22 &               0.15 &              0.71 \\
+            ANN &         0.15 &          0.20 &         0.15 &           0.75 &               0.16 &                0.21 &               0.16 &              0.73 \\
+\bottomrule
+\end{tabular}
+\end{table}
