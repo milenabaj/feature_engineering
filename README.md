@@ -42,4 +42,3 @@ python -i get_features.py --in_dir /dtu-compute/lira/ml_data/data --target IRI_m
 * Package written by: <br/>
 Milena Bajic <br/>
 Postdoc at DTU Compute <br/>
-e-mail: lenka.bajic@gmail.com
