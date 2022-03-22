@@ -38,7 +38,7 @@ python -i get_features.py --in_dir /dtu-compute/lira/ml_data/data --target IRI_m
      /dtu-compute/lira/ml_data/data/ aligned_fe_fs_GM_P79_ARAN_data_window-100-step-10/M3_VH_M3_HH_filter_speed_accspeed/feature_selection_<target_name>
     
 
-# Package author and contact
+# Package author 
 * Package written by: <br/>
 Milena Bajic <br/>
-Postdoc at DTU Compute <br/>
+
